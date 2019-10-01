@@ -60,7 +60,7 @@ data_source.Select("lambda e: (e.eventNumber, e.CalibJet_pT)")
 
 becomes
 
-```python
+```lisp
 (Select data_source (lambda (list e) (list (attr e "eventNumber")
                                            (attr e "CalibJet_pT"))))
 ```
@@ -74,7 +74,7 @@ data_source.Where("lambda e: (e.jet_pT.Where(lambda j: j > 1000).Count() > 0"))
 
 becomes
 
-```python
+```lisp
 (Select (Where data_source
                (lambda (list e) (> (Count (Where (attr e "CalibJet_pT")
                                                  (lambda (list j)
