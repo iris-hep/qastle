@@ -80,8 +80,8 @@ becomes
                                                  (lambda (list j)
                                                          (> j 1000))))
                                    0)))
-        (lambda (list e) (list attr(e "eventNumber")
-                               attr(e "CalibJet_pT"))))
+        (lambda (list e) (list (attr e "eventNumber")
+                               (attr e "CalibJet_pT"))))
 ```
 
 In both cases, two columns (corresponding to "eventNumber" and "CalibJet_pT") are returned, in order.
