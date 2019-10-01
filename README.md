@@ -83,3 +83,5 @@ becomes
         (lambda (list e) (list attr(e "eventNumber")
                                attr(e "CalibJet_pT"))))
 ```
+
+In both cases, two columns (corresponding to "eventNumber" and "CalibJet_pT") are returned, in order.
