@@ -68,7 +68,7 @@ becomes
 Another example:
 
 ```python
-data_source.Where("lambda e: (e.jet_pT.Where(lambda j: j > 1000).Count() > 0"))
+data_source.Where("lambda e: (e.CalibJet_pT.Where(lambda j: j > 1000).Count() > 0"))
            .Select("lambda e: (e.eventNumber, e.CalibJet_pT)")
 ```
 
