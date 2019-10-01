@@ -29,7 +29,7 @@ Like Lisp, the language consists solely of s-expressions. All defined s-expressi
     - Numeric literals: identical to Python's real number literals
     - String literals: identical to Python's single-quoted or double-quoted strings without prefixes or formatting
   - Identifiers: identical to Python's identifiers (but with a different set of reserved keywords)
-    - Variable names: represent a variable defined within the AST in which its name appears
+    - Variable names: represent a variable, defined within the AST in which its name appears or is the underlying data source being queried
     - Keywords: predefined identifiers which have a special meaning globally and cannot be used as a variable name
       - `True` and `true`: represent a Boolean value of true
       - `False` and `false`: represent a Boolean value of false
@@ -49,3 +49,37 @@ Like Lisp, the language consists solely of s-expressions. All defined s-expressi
   - Where: `(Where <source> <predicate>)`
     - `predicate` must be a `lambda` with one argument
   - Count: `(Count <source>)`
+
+## Examples
+
+The query:
+
+```python
+data_source.Select("lambda e: (e.eventNumber, e.CalibJet_pT)")
+```
+
+becomes
+
+```python
+(Select data_source (lambda (list e) (list (attr e "eventNumber")
+                                           (attr e "CalibJet_pT"))))
+```
+
+Another example:
+
+```python
+data_source.Where("lambda e: (e.jet_pT.Where(lambda j: j > 1000).Count() > 0"))
+           .Select("lambda e: (e.eventNumber, e.CalibJet_pT)")
+```
+
+becomes
+
+```python
+(Select (Where data_source
+               (lambda (list e) (> (Count (Where (attr e "CalibJet_pT")
+                                                 (lambda (list j)
+                                                         (> j 1000))))
+                                   0)))
+        (lambda (list e) (list attr(e "eventNumber")
+                               attr(e "CalibJet_pT"))))
+```
