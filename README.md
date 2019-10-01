@@ -1,6 +1,6 @@
 # AST language
 
-This document describes a language intended to be used in [ServiceX](https://github.com/ssl-hep/ServiceX) and [FuncADL](https://github.com/iris-hep/func_adl) for messages which represent abstract syntax trees (ASTs). The trees specify columnar selections of HEP data.
+This document describes a language intended to be used in [ServiceX](https://github.com/ssl-hep/ServiceX) and [func_adl](https://github.com/iris-hep/func_adl) for messages which represent abstract syntax trees (ASTs). The trees specify columnar selections of HEP data.
 
 ## Introduction
 
