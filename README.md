@@ -1,4 +1,4 @@
-# Text AST language
+# AST language
 
 This document describes a language intended to be used in [ServiceX](https://github.com/ssl-hep/ServiceX) and [FuncADL](https://github.com/iris-hep/func_adl) for messages which represent abstract syntax trees (ASTs). The trees specify columnar selections of HEP data.
 
@@ -24,7 +24,7 @@ This document describes a language intended to be used in [ServiceX](https://git
 
 Like Lisp, the language consists solely of s-expressions. All defined s-expressions are listed here, though this specification will be expanded in the future.
 
-- Atomic s-expressions (atoms):
+- Atomic s-expressions:
   - Literals:
     - Numeric literals: identical to Python's real number literals
     - String literals: identical to Python's single-quoted or double-quoted strings without prefixes or formatting
