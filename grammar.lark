@@ -1,0 +1,26 @@
+expression: WHITESPACE* node WHITESPACE*
+
+WHITESPACE: "\t" | "\n" | "\r" | " "
+
+?node: atom | composite
+
+atom: NAME | NUMERIC_LITERAL | STRING_LITERAL
+
+NAME: (LETTER | "_") (DIGIT | LETTER | "_")*
+
+LETTER: "A".."Z" | "a".."z"
+
+DIGIT: "0".."9"
+
+NUMERIC_LITERAL: [SIGN] (DIGIT+ "." [DIGIT+] | [DIGIT+] "." DIGIT+ | DIGIT+) [("E" | "e") [SIGN] DIGIT+]
+
+SIGN: "+" | "-"
+
+STRING_LITERAL:   "\"" (/[^"]/ | ESCAPE_SEQUENCE)* "\""
+                | "'" (/[^']/ | ESCAPE_SEQUENCE)* "'"
+
+ESCAPE_SEQUENCE: "\\" /./
+
+composite: "(" WHITESPACE* NODE_TYPE (WHITESPACE+ node)* WHITESPACE* ")"
+
+NODE_TYPE: LETTER+
