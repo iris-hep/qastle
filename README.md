@@ -26,7 +26,7 @@ This document describes a language intended to be used in [ServiceX](https://git
 
 The syntax/grammar definition is discussed [here](ebnf.md). Like Lisp, the language consists solely of s-expressions. S-expressions here represent AST nodes and are either atoms--which include literals and identifiers--or composites of other s-expressions. Literals and names are nearly identical to those in Python. Composites are of the form:
 
-```lisp
+```
 (<composite node type> <s-expression 1> <s-expression 2> <s-expression 3> ...)
 ```
 
