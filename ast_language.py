@@ -1,3 +1,5 @@
+import linq_util
+
 import lark
 
 import ast
@@ -7,12 +9,6 @@ grammar_pathname = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'gra
 
 with open(grammar_pathname) as grammar_file:
   parser = lark.Lark(grammar_file.read(), start='record')
-
-class Select(ast.AST):
-  def __init__(self, source, selector):
-    self._fields = ['source', 'selector']
-    self.source = source
-    self.selector = selector
 
 class TextASTToPythonAST(lark.Transformer):
   def record(self, children):
@@ -82,7 +78,7 @@ class TextASTToPythonAST(lark.Transformer):
         raise SyntaxError('Select selector must be a lambda; found ' + type(fields[1]))
       if len(fields[1].args.args) != 1:
         raise SyntaxError('Select selector must have exactly one argument; found ' + len(fields[1].args.args))
-      return Select(source=fields[0], selector=fields[1])
+      return linq_util.Select(source=fields[0], selector=fields[1])
 
     else:
       raise SyntaxError('Unknown composite node type: ' + node_type)
@@ -139,4 +135,8 @@ def text_ast_to_python_ast(text_ast):
   return TextASTToPythonAST().transform(tree)
 
 def python_ast_to_text_ast(python_ast):
+  return PythonASTToTextAST().visit(python_ast)
+
+def python_source_to_text_ast(python_source):
+  python_ast = ast.parse(python_source)
   return PythonASTToTextAST().visit(python_ast)
