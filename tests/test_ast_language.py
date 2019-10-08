@@ -2,58 +2,80 @@ from ast_language import *
 
 import ast
 
-def check_python_round_trip(initial_python_text):
-  initial_python_ast = ast.parse(initial_python_text)
-  text_ast = python_ast_to_text_ast(initial_python_ast)
-  final_python_ast = text_ast_to_python_ast(text_ast)
-  assert ast.dump(final_python_ast) == ast.dump(initial_python_ast)
+def are_equal(ast_1, ast_2):
+  return ast.dump(ast_1) == ast.dump(ast_2)
 
-def get_text_ast_round_trip(initial_text_ast):
-  python_ast = text_ast_to_python_ast(initial_text_ast)
-  return python_ast_to_text_ast(python_ast)
+def assert_identical_atom(initial_text):
+  initial_python_ast = ast.parse(initial_text)
+  final_text_ast = python_ast_to_text_ast(initial_python_ast)
+  assert final_text_ast == initial_text.strip(' \t\r\n')
+  final_python_ast = text_ast_to_python_ast(initial_text)
+  assert are_equal(final_python_ast, initial_python_ast)
 
-def check_text_ast_round_trip(initial_text_ast):
-  assert get_text_ast_round_trip(initial_text_ast) == initial_text_ast.strip(' \t\r\n')
+def assert_equivalent_literal(initial_text):
+  initial_python_ast = ast.parse(initial_text)
+  final_text_ast = python_ast_to_text_ast(initial_python_ast)
+  assert ast.literal_eval(final_text_ast) == ast.literal_eval(initial_text)
+  final_python_ast = text_ast_to_python_ast(initial_text)
+  assert are_equal(final_python_ast, initial_python_ast)
 
-def check_round_trip_both_ways(text):
-  check_python_round_trip(text)
-  check_text_ast_round_trip(text)
+def assert_equivalent_python_ast_and_text_ast(initial_python_ast, initial_text_ast):
+  final_text_ast = python_ast_to_text_ast(initial_python_ast)
+  assert final_text_ast == initial_text_ast
+  final_python_ast = text_ast_to_python_ast(initial_text_ast)
+  assert are_equal(final_python_ast, initial_python_ast)
 
-def check_text_ast_round_trip_eval(initial_text_ast):
-  assert ast.literal_eval(get_text_ast_round_trip(initial_text_ast)) == ast.literal_eval(initial_text_ast)
-
-def check_round_trip_both_ways_eval(text):
-  check_python_round_trip(text)
-  check_text_ast_round_trip_eval(text)
+def assert_equivalent_python_text_and_text_ast(python_text, initial_text_ast):
+  initial_python_ast = ast.parse(python_text)
+  assert_equivalent_python_ast_and_text_ast(initial_python_ast, initial_text_ast)
 
 
 def test_empty():
-  check_round_trip_both_ways('')
+  assert_identical_atom('')
 
 def test_whitespace():
-  check_round_trip_both_ways(' \t\r\n')
+  assert_identical_atom(' \t\r\n')
 
 def test_identifiers():
-  check_round_trip_both_ways('x')
-
-def test_numeric_literals():
-  check_round_trip_both_ways('0')
-  check_round_trip_both_ways('1.2')
-  check_round_trip_both_ways('3e+21')
-  check_round_trip_both_ways('4e-22')
-  check_round_trip_both_ways('5.6e+23')
-  check_round_trip_both_ways('7.8e-24')
-
-  check_round_trip_both_ways_eval('1.')
-  check_round_trip_both_ways_eval('.2')
-  check_round_trip_both_ways_eval('3.e4')
-  check_round_trip_both_ways_eval('5.e+6')
-  check_round_trip_both_ways_eval('7.e-8')
-  check_round_trip_both_ways_eval('.9e10')
-  check_round_trip_both_ways_eval('.11e+12')
-  check_round_trip_both_ways_eval('.13e-14')
+  assert_identical_atom('xyz')
 
 def test_string_literals():
-  check_round_trip_both_ways("''")
-  check_round_trip_both_ways("'as\"df'")
-  check_round_trip_both_ways('"as\'df"')
+  assert_identical_atom("''")
+  assert_identical_atom("'as\"df'")
+  assert_identical_atom('"as\'df"')
+
+def test_numeric_literals():
+  assert_identical_atom('0')
+  assert_identical_atom('1.2')
+  assert_identical_atom('3e+21')
+  assert_identical_atom('4e-22')
+  assert_identical_atom('5.6e+23')
+  assert_identical_atom('7.8e-24')
+
+  assert_equivalent_literal('1.')
+  assert_equivalent_literal('.2')
+  assert_equivalent_literal('3.e4')
+  assert_equivalent_literal('5.e+6')
+  assert_equivalent_literal('7.e-8')
+  assert_equivalent_literal('.9e10')
+  assert_equivalent_literal('.11e+12')
+  assert_equivalent_literal('.13e-14')
+
+def test_list():
+  assert_equivalent_python_text_and_text_ast('[]', '(list)')
+  assert_equivalent_python_text_and_text_ast('[0, 1, 2]', '(list 0 1 2)')
+
+def test_attr():
+  assert_equivalent_python_text_and_text_ast('a.b', "(attr a 'b')")
+
+def test_call():
+  assert_equivalent_python_text_and_text_ast('a()', "(call a)")
+  assert_equivalent_python_text_and_text_ast('a(0, 1, 2)', "(call a 0 1 2)")
+
+def test_lambda():
+  assert_equivalent_python_text_and_text_ast('lambda: 0', "(lambda (list) 0)")
+  assert_equivalent_python_text_and_text_ast('lambda x, y, z: x', "(lambda (list x y z) x)")
+
+def test_Select():
+  select_node = Select(source=ast.parse('data_source').body[0].value, selector=ast.parse('lambda e: e').body[0].value)
+  assert_equivalent_python_ast_and_text_ast(ast.Module(body=[ast.Expr(value=select_node)]), '(Select data_source (lambda (list e) e))')
