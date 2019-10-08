@@ -7,7 +7,7 @@ grammar_pathname = 'grammar.lark'
 with open(grammar_pathname) as grammar_file:
   parser = lark.Lark(grammar_file.read(), start='record')
 
-class Transformer(lark.Transformer):
+class TextToPython(lark.Transformer):
   def record(self, record_tree):
     if len(record_tree) == 0 or isinstance(record[0], lark.Token) and record[0].type == 'WHITESPACE':
       return ast.Module(body=[])
@@ -34,3 +34,19 @@ class Transformer(lark.Transformer):
 
   def composite(self, composite_tree):
     return composite_tree
+
+class PythonToText(ast.NodeVisitor):
+  def visit_Module(self, node):
+    return '\n'.join([self.visit(child_node) for child_node in node.body])
+
+  def visit_Expr(self, node):
+    return self.visit(node.value)
+
+  def visit_Name(self, node):
+    return node.id
+
+  def visit_Num(self, node):
+    return repr(node.n)
+
+  def visit_Str(self, node):
+    return repr(node.s)
