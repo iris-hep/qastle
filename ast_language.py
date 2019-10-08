@@ -112,6 +112,9 @@ class PythonASTToTextAST(ast.NodeVisitor):
   def visit_List(self, node):
     return self.make_composite_node_string('list', *[self.visit(element) for element in node.elts])
 
+  def visit_Tuple(self, node):
+    return self.visit_List(node)
+
   def visit_Attribute(self, node):
     return self.make_composite_node_string('attr', self.visit(node.value), repr(node.attr))
 
@@ -129,6 +132,9 @@ class PythonASTToTextAST(ast.NodeVisitor):
 
   def visit_Select(self, node):
     return self.make_composite_node_string('Select', self.visit(node.source), self.visit(node.selector))
+
+  def generic_visit(self, node):
+    raise SyntaxError('Unsupported node type: ' + str(type(node)))
 
 def text_ast_to_python_ast(text_ast):
   tree = parser.parse(text_ast)
