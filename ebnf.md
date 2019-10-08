@@ -10,20 +10,20 @@ The syntactic primary is a `record`, which is either empty or holds one top-leve
 
 ```ebnf
 
-record = expression | {whitespace chracter}
+record = expression | {whitespace chracter} ;
 
-expression = {whitespace character} node {whitespace character}
+expression = {whitespace character} node {whitespace character} ;
 
-whitespace character =   ? ISO 6429 character Horizontal Tabulation ?
-                       | ? ISO 6429 character Line Feed ?
+whitespace character =   " "
+                       | ? ISO 6429 character Horizontal Tabulation ?
                        | ? ISO 6429 character Carriage Return ?
-                       | " " ;
+                       | ? ISO 6429 character Line Feed ? ;
 
-node = atom | composite
+node = atom | composite ;
 
-atom = name | numeric literal | string literal
+atom = identifier | string literal | numeric literal ;
 
-name = (letter | "_"), {alphanumeric character | "_"} ;
+identifier = (letter | "_"), {alphanumeric character | "_"} ;
 
 letter =   "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L"
          | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X"
@@ -36,13 +36,8 @@ alphanumeric character = letter | digit ;
 
 digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
 
-numeric literal = (unsigned integer | unsigned integer, ".", [unsigned integer] | [unsigned integer], ".", unsigned integer),
-                  [("E" | "e"), ["+" | "-"], unsigned integer] ;
-
-unsigned integer = digit, {digit} ;
-
-string literal =   '"', {character - '"' | escape sequence}, '"'
-                 | "'", {character - "'" | escape sequence}, "'" ;
+string literal =   "'", {character - "'" | escape sequence}, "'"
+                 | '"', {character - '"' | escape sequence}, '"' ;
 
 escape sequence = "\", character ;
 
@@ -52,10 +47,15 @@ symbol =   "!" | '"' | "#" | "$" | "%" | "&" | "'" | "(" | ")" | "*" | "+" | ","
          | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" | "[" | "\"
          | "]" | "^" | "_" | "`" | "{" | "|" | "}" | "~" ;
 
-node = "(", {whitespace character}, node type,
-           {whitespace character, {whitespace character}, node},
-           {whitespace character}, ")" ;
+numeric literal = (unsigned integer | unsigned integer, ".", [unsigned integer] | [unsigned integer], ".", unsigned integer),
+                  [("E" | "e"), ["+" | "-"], unsigned integer] ;
 
-node type = letter, {letter}
+unsigned integer = digit, {digit} ;
+
+composite = "(", {whitespace character}, node type,
+                 {whitespace character, {whitespace character}, node},
+                 {whitespace character}, ")" ;
+
+node type = letter, {letter} ;
 
 ```

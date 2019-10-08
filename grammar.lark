@@ -2,24 +2,24 @@ record: expression | WHITESPACE*
 
 expression: WHITESPACE* node WHITESPACE*
 
-WHITESPACE: "\t" | "\n" | "\r" | " "
+WHITESPACE: " " | "\t" | "\r" | "\n"
 
 ?node: atom | composite
 
-atom: NAME | NUMERIC_LITERAL | STRING_LITERAL
+atom: IDENTIFIER | STRING_LITERAL | NUMERIC_LITERAL
 
-NAME: (LETTER | "_") (DIGIT | LETTER | "_")*
+IDENTIFIER: (LETTER | "_") (LETTER | "_" | DIGIT)*
 
 LETTER: "A".."Z" | "a".."z"
 
 DIGIT: "0".."9"
 
-NUMERIC_LITERAL: (DIGIT+ "." DIGIT* | DIGIT* "." DIGIT+ | DIGIT+) [("E" | "e") ["+" | "-"] DIGIT+]
-
-STRING_LITERAL:   "\"" (/[^"]/ | ESCAPE_SEQUENCE)* "\""
-                | "'" (/[^']/ | ESCAPE_SEQUENCE)* "'"
+STRING_LITERAL:    "'" (/[^']/ | ESCAPE_SEQUENCE)*  "'"
+                | "\"" (/[^"]/ | ESCAPE_SEQUENCE)* "\""
 
 ESCAPE_SEQUENCE: "\\" /./
+
+NUMERIC_LITERAL: (DIGIT+ "." DIGIT* | DIGIT* "." DIGIT+ | DIGIT+) [("E" | "e") ["+" | "-"] DIGIT+]
 
 composite: "(" WHITESPACE* NODE_TYPE (WHITESPACE+ node)* WHITESPACE* ")"
 
