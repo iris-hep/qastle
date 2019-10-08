@@ -36,10 +36,8 @@ alphanumeric character = letter | digit ;
 
 digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
 
-numeric literal = [sign], (unsigned integer | unsigned integer, ".", [unsigned integer] | [unsigned integer], ".", unsigned integer),
-                  [("E" | "e"), [sign], unsigned integer] ;
-
-sign = "+" | "-"
+numeric literal = (unsigned integer | unsigned integer, ".", [unsigned integer] | [unsigned integer], ".", unsigned integer),
+                  [("E" | "e"), ["+" | "-"], unsigned integer] ;
 
 unsigned integer = digit, {digit} ;
 
