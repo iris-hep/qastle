@@ -1,3 +1,5 @@
+record: expression | WHITESPACE*
+
 expression: WHITESPACE* node WHITESPACE*
 
 WHITESPACE: "\t" | "\n" | "\r" | " "
@@ -12,7 +14,7 @@ LETTER: "A".."Z" | "a".."z"
 
 DIGIT: "0".."9"
 
-NUMERIC_LITERAL: [SIGN] (DIGIT+ "." [DIGIT+] | [DIGIT+] "." DIGIT+ | DIGIT+) [("E" | "e") [SIGN] DIGIT+]
+NUMERIC_LITERAL: [SIGN] (DIGIT+ "." DIGIT* | DIGIT* "." DIGIT+ | DIGIT+) [("E" | "e") [SIGN] DIGIT+]
 
 SIGN: "+" | "-"
 
