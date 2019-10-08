@@ -1,2 +1,2 @@
-lark
+lark-parser
 pytest
