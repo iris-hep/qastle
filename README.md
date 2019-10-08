@@ -22,66 +22,56 @@ This document describes a language intended to be used in [ServiceX](https://git
 
 ## Language specification
 
-Like Lisp, the language consists solely of s-expressions. All defined s-expressions are listed here, though this specification will be expanded in the future.
+### Syntax
 
-- Atomic s-expressions:
-  - Literals:
-    - Numeric literals: identical to Python's real number literals
-    - String literals: identical to Python's single-quoted or double-quoted strings without prefixes or formatting
-  - Identifiers: identical to Python's identifiers (but with a different set of reserved keywords)
-    - Variable names: represent a variable, defined within the AST in which its name appears or is the underlying data source being queried
-    - Keywords: predefined identifiers which have a special meaning globally and cannot be used as a variable name
-      - `True` and `true`: represent a Boolean value of true
-      - `False` and `false`: represent a Boolean value of false
+The syntax/grammar definition is discussed [here](ebnf.md). Like Lisp, the language consists solely of s-expressions. S-expressions here represent AST nodes and are either atoms--which include literals and identifiers--or composites of other s-expressions. Literals and names are nearly identical to those in Python. Composites are of the form `(<composite node type> <s-expression 1> <s-expression 2> <s-expression 3> ...)`. They look like bare lists from Lisp, with the first element describing the type of AST node, and the rest of the elements being the components of the node.
 
-- Non-atomic s-expressions:
+### Semantics
+
+All defined s-expressions are listed here, though this specification will be expanded in the future. The symbol `*` is used as a suffix here in its regex meaning (i.e., zero or more of the object that it follows are expected). Except where there is a restriction explicitly mentioned in the templates below, any type of s-expression can used as an element of a composite s-expression.
+
+- Atomic s-expressions (atoms):
+  - Numbers
+  - Strings
+  - Variable names
+
+- Composite s-expressions:
   - Lists: `(list <item>*)`
   - Attributes: `(attr <object> <attribute>)`
     - `attribute` must be a string literal
-  - Unary operators: `(<operator> <operand>)`
-    - `operator` must be one of: `+`, `-` (arithmetic); `not` (boolean)
-  - Binary operators: `(<operator> <left operand> <right operand>)`
-    - `operator` must be one of: `+`, `-`, `*`, `/` (arithmetic); `<`, `<=`, `==`, `!=`, `>`, `>=` (comparison); `and`, `or` (boolean)
+  - Function calls: `(call <function> <argument>*)`
   - Lambdas: `(lambda <arguments> <expression>)`
     - `arguments` must be a `list` containing only variable names
   - Select: `(Select <source> <selector>)`
     - `selector` must be a `lambda` with one argument
-  - Where: `(Where <source> <predicate>)`
-    - `predicate` must be a `lambda` with one argument
-  - Count: `(Count <source>)`
 
-## Examples
 
-The query:
+## Example
+
+The following query for eight columns:
 
 ```python
-data_source.Select("lambda e: (e.eventNumber, e.CalibJet_pT)")
+data_column_source.Select("lambda Event: (Event.Electrons.pt(),
+                                          Event.Electrons.eta(),
+                                          Event.Electrons.phi(),
+                                          Event.Electrons.e(),
+                                          Event.Muons.pt(),
+                                          Event.Muons.eta(),
+                                          Event.Muons.phi(),
+                                          Event.Muons.e())")
 ```
 
 becomes
 
 ```lisp
-(Select data_source (lambda (list e) (list (attr e "eventNumber")
-                                           (attr e "CalibJet_pT"))))
+(Select data_column_source
+        (lambda (list Event)
+                (list (call (attr (attr Event 'Electrons') 'pt'))
+                      (call (attr (attr Event 'Electrons') 'eta'))
+                      (call (attr (attr Event 'Electrons') 'phi'))
+                      (call (attr (attr Event 'Electrons') 'e'))
+                      (call (attr (attr Event 'Muons') 'pt'))
+                      (call (attr (attr Event 'Muons') 'eta'))
+                      (call (attr (attr Event 'Muons') 'phi'))
+                      (call (attr (attr Event 'Muons') 'e')))))
 ```
-
-Another example:
-
-```python
-data_source.Where("lambda e: (e.CalibJet_pT.Where(lambda j: j > 1000).Count() > 0"))
-           .Select("lambda e: (e.eventNumber, e.CalibJet_pT)")
-```
-
-becomes
-
-```lisp
-(Select (Where data_source
-               (lambda (list e) (> (Count (Where (attr e "CalibJet_pT")
-                                                 (lambda (list j)
-                                                         (> j 1000))))
-                                   0)))
-        (lambda (list e) (list (attr e "eventNumber")
-                               (attr e "CalibJet_pT"))))
-```
-
-In both cases, two columns (corresponding to "eventNumber" and "CalibJet_pT") are returned, in order.
