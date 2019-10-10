@@ -2,8 +2,9 @@ language: python
 python:
  - '3.7'
 install:
- - pip install flake8 pytest
+ - pip install flake8 coverage pytest codecov
  - pip install -r requirements.txt
 script:
  - flake8
- - pytest
+ - coverage run -m pytest
+ - codecov
