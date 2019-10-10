@@ -1,4 +1,4 @@
-import ast_util
+from . import ast_util
 
 import ast
 

@@ -1,4 +1,4 @@
-import linq_util
+from . import linq_util
 
 import lark
 
