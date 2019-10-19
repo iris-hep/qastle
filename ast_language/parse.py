@@ -2,6 +2,7 @@ import lark
 
 import os
 
+
 syntax_specification_pathname = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                              'syntax.lark')
 

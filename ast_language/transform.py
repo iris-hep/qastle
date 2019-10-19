@@ -1,8 +1,70 @@
-from . import linq_util
+from .linq_util import Select
 
 import lark
 
 import ast
+
+
+class PythonASTToTextASTTransformer(ast.NodeVisitor):
+    def visit_Module(self, node):
+        n_children = len(node.body)
+        if n_children == 0:
+            return ''
+        elif n_children == 1:
+            return self.visit(node.body[0])
+        else:
+            raise SyntaxError('A record must contain zero or one expressions; found '
+                              + str(n_children))
+
+    def visit_Expr(self, node):
+        return self.visit(node.value)
+
+    def visit_Name(self, node):
+        return node.id
+
+    def visit_Num(self, node):
+        return repr(node.n)
+
+    def visit_Str(self, node):
+        return repr(node.s)
+
+    @staticmethod
+    def make_composite_node_string(node_type, *fields):
+        return '(' + node_type + ''.join([' ' + field for field in fields]) + ')'
+
+    def visit_List(self, node):
+        return self.make_composite_node_string('list',
+                                               *[self.visit(element) for element in node.elts])
+
+    def visit_Tuple(self, node):
+        return self.visit_List(node)
+
+    def visit_Attribute(self, node):
+        return self.make_composite_node_string('attr', self.visit(node.value), repr(node.attr))
+
+    def visit_Call(self, node):
+        return self.make_composite_node_string('call',
+                                               self.visit(node.func),
+                                               *[self.visit(arg) for arg in node.args])
+
+    def visit_Lambda(self, node):
+        return self.make_composite_node_string('lambda',
+                                               self.visit(node.args),
+                                               self.visit(node.body))
+
+    def visit_arguments(self, node):
+        return self.visit(ast.List(elts=node.args))
+
+    def visit_arg(self, node):
+        return node.arg
+
+    def visit_Select(self, node):
+        return self.make_composite_node_string('Select',
+                                               self.visit(node.source),
+                                               self.visit(node.selector))
+
+    def generic_visit(self, node):
+        raise SyntaxError('Unsupported node type: ' + str(type(node)))
 
 
 class TextASTToPythonASTTransformer(lark.Transformer):
@@ -82,69 +144,7 @@ class TextASTToPythonASTTransformer(lark.Transformer):
             if len(fields[1].args.args) != 1:
                 raise SyntaxError('Select selector must have exactly one argument; found '
                                   + len(fields[1].args.args))
-            return linq_util.Select(source=fields[0], selector=fields[1])
+            return Select(source=fields[0], selector=fields[1])
 
         else:
             raise SyntaxError('Unknown composite node type: ' + node_type)
-
-
-class PythonASTToTextASTTransformer(ast.NodeVisitor):
-    def visit_Module(self, node):
-        n_children = len(node.body)
-        if n_children == 0:
-            return ''
-        elif n_children == 1:
-            return self.visit(node.body[0])
-        else:
-            raise SyntaxError('A record must contain zero or one expressions; found '
-                              + str(n_children))
-
-    def visit_Expr(self, node):
-        return self.visit(node.value)
-
-    def visit_Name(self, node):
-        return node.id
-
-    def visit_Num(self, node):
-        return repr(node.n)
-
-    def visit_Str(self, node):
-        return repr(node.s)
-
-    @staticmethod
-    def make_composite_node_string(node_type, *fields):
-        return '(' + node_type + ''.join([' ' + field for field in fields]) + ')'
-
-    def visit_List(self, node):
-        return self.make_composite_node_string('list',
-                                               *[self.visit(element) for element in node.elts])
-
-    def visit_Tuple(self, node):
-        return self.visit_List(node)
-
-    def visit_Attribute(self, node):
-        return self.make_composite_node_string('attr', self.visit(node.value), repr(node.attr))
-
-    def visit_Call(self, node):
-        return self.make_composite_node_string('call',
-                                               self.visit(node.func),
-                                               *[self.visit(arg) for arg in node.args])
-
-    def visit_Lambda(self, node):
-        return self.make_composite_node_string('lambda',
-                                               self.visit(node.args),
-                                               self.visit(node.body))
-
-    def visit_arguments(self, node):
-        return self.visit(ast.List(elts=node.args))
-
-    def visit_arg(self, node):
-        return node.arg
-
-    def visit_Select(self, node):
-        return self.make_composite_node_string('Select',
-                                               self.visit(node.source),
-                                               self.visit(node.selector))
-
-    def generic_visit(self, node):
-        raise SyntaxError('Unsupported node type: ' + str(type(node)))
