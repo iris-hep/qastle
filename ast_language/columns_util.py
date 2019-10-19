@@ -7,7 +7,7 @@ class SourceRemover(ast.NodeTransformer):
 
     def visit_Attribute(self, node):
         if isinstance(node.value, ast.Name) and node.value.id == self.source_name:
-            return ast.Name(id=node.attr)
+            return ast.Name(id=node.attr, ctx=node.ctx)
         else:
             return self.generic_visit(node)
 
