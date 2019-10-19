@@ -3,8 +3,13 @@ from ast_language import *
 import ast
 
 
-def are_equal(ast_1, ast_2):
+def are_ast_nodes_equal(ast_1, ast_2):
     return ast.dump(ast_1) == ast.dump(ast_2)
+
+
+def assert_ast_nodes_are_equal(ast_1, ast_2):
+    assert are_ast_nodes_equal(ast_1, ast_2), ('ast_1 = ' + ast.dump(ast_1)
+                                               + ', ast_2 = ' + ast.dump(ast_2))
 
 
 def assert_identical_atom(initial_text):
@@ -12,7 +17,7 @@ def assert_identical_atom(initial_text):
     final_text_ast = python_ast_to_text_ast(initial_python_ast)
     assert final_text_ast == initial_text.strip(' \t\r\n')
     final_python_ast = text_ast_to_python_ast(initial_text)
-    assert are_equal(final_python_ast, initial_python_ast)
+    assert_ast_nodes_are_equal(final_python_ast, initial_python_ast)
 
 
 def assert_equivalent_literal(initial_text):
@@ -20,14 +25,14 @@ def assert_equivalent_literal(initial_text):
     final_text_ast = python_ast_to_text_ast(initial_python_ast)
     assert ast.literal_eval(final_text_ast) == ast.literal_eval(initial_text)
     final_python_ast = text_ast_to_python_ast(initial_text)
-    assert are_equal(final_python_ast, initial_python_ast)
+    assert_ast_nodes_are_equal(final_python_ast, initial_python_ast)
 
 
 def assert_equivalent_python_ast_and_text_ast(initial_python_ast, initial_text_ast):
     final_text_ast = python_ast_to_text_ast(initial_python_ast)
     assert final_text_ast == initial_text_ast
     final_python_ast = text_ast_to_python_ast(initial_text_ast)
-    assert are_equal(final_python_ast, initial_python_ast)
+    assert_ast_nodes_are_equal(final_python_ast, initial_python_ast)
 
 
 def assert_equivalent_python_text_and_text_ast(python_text, initial_text_ast):
