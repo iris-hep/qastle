@@ -1,4 +1,5 @@
 import ast
+import sys
 
 
 class SourceRemover(ast.NodeTransformer):
@@ -54,7 +55,10 @@ class PythonASTToColumnsTransformer(ast.NodeVisitor):
         if len(node.selector.args.args) != 1:
             raise SyntaxError('Selector must have exactly one argument; found '
                               + str(len(node.selector.args.args)))
-        source_name = node.selector.args.args[0].arg
+        if sys.version_info[0] < 3:
+            source_name = node.selector.args.args[0].id
+        else:
+            source_name = node.selector.args.args[0].arg
         body = remove_source(node.selector.body, source_name)
         if isinstance(body, ast.List) or isinstance(body, ast.Tuple):
             return ', '.join(self.visit(element) for element in body.elts)

@@ -6,7 +6,9 @@ import ast
 
 
 def test_remove_source():
-    initial_node = ast.Attribute(value=ast.Name(id='a_source_name', ctx=ast.Load()), attr='not_the_source', ctx=ast.Load())
+    initial_node = ast.Attribute(value=ast.Name(id='a_source_name', ctx=ast.Load()),
+                                 attr='not_the_source',
+                                 ctx=ast.Load())
     final_node = remove_source(initial_node, 'a_source_name')
     assert_ast_nodes_are_equal(final_node, ast.Name(id='not_the_source', ctx=ast.Load()))
 
