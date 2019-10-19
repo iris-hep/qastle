@@ -119,7 +119,11 @@ class TextASTToPythonASTTransformer(lark.Transformer):
             if len(fields) < 1:
                 raise SyntaxError('Call node must have at least one field; found ' + len(fields))
             if sys.version_info[0] < 3:
-                return ast.Call(func=fields[0], args=fields[1:], keywords=[], starargs=None, kwargs=None)
+                return ast.Call(func=fields[0],
+                                args=fields[1:],
+                                keywords=[],
+                                starargs=None,
+                                kwargs=None)
             else:
                 return ast.Call(func=fields[0], args=fields[1:], keywords=[])
 
