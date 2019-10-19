@@ -3,15 +3,9 @@ from . import linq_util
 import lark
 
 import ast
-import os
-
-grammar_pathname = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'grammar.lark')
-
-with open(grammar_pathname) as grammar_file:
-    parser = lark.Lark(grammar_file.read(), start='record')
 
 
-class TextASTToPythonAST(lark.Transformer):
+class TextASTToPythonASTTransformer(lark.Transformer):
     def record(self, children):
         if (len(children) == 0
            or isinstance(children[0], lark.Token) and children[0].type == 'WHITESPACE'):
@@ -94,7 +88,7 @@ class TextASTToPythonAST(lark.Transformer):
             raise SyntaxError('Unknown composite node type: ' + node_type)
 
 
-class PythonASTToTextAST(ast.NodeVisitor):
+class PythonASTToTextASTTransformer(ast.NodeVisitor):
     def visit_Module(self, node):
         n_children = len(node.body)
         if n_children == 0:
@@ -154,17 +148,3 @@ class PythonASTToTextAST(ast.NodeVisitor):
 
     def generic_visit(self, node):
         raise SyntaxError('Unsupported node type: ' + str(type(node)))
-
-
-def text_ast_to_python_ast(text_ast):
-    tree = parser.parse(text_ast)
-    return TextASTToPythonAST().transform(tree)
-
-
-def python_ast_to_text_ast(python_ast):
-    return PythonASTToTextAST().visit(python_ast)
-
-
-def python_source_to_text_ast(python_source):
-    python_ast = ast.parse(python_source)
-    return PythonASTToTextAST().visit(python_ast)
