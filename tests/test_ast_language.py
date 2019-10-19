@@ -76,6 +76,10 @@ def test_simple_math_operations():
     assert_equivalent_python_text_and_text_ast('1/2', '(/ 1 2)')
     assert_equivalent_python_text_and_text_ast('1-2', '(- 1 2)')
 
+def test_simple_tuple():
+    assert_equivalent_python_text_and_text_ast('(1,2)', '(list 1 2)')
+    assert_equivalent_python_text_and_text_ast('(1,)', '(list 1)')
+
 def test_list():
     assert_equivalent_python_text_and_text_ast('[]', '(list)')
     assert_equivalent_python_text_and_text_ast('[0, 1, 2]', '(list 0 1 2)')
