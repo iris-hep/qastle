@@ -14,8 +14,8 @@ def test_remove_source():
 
 
 def test_python_ast_to_columns():
-    node = Select(source=unwrap_ast(ast.parse('the_source')),
-                  selector=unwrap_ast(ast.parse('lambda row:\
-                                                 (row.collection_i.column_1(),\
-                                                  row.collection_ii.column_2())')))
+    node = wrap_ast(Select(source=unwrap_ast(ast.parse('the_source')),
+                           selector=unwrap_ast(ast.parse('lambda row:\
+                                                          (row.collection_i.column_1(),\
+                                                           row.collection_ii.column_2())'))))
     assert python_ast_to_columns(node) == 'collection_i.column_1(), collection_ii.column_2()'
