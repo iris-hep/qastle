@@ -3,6 +3,7 @@ from .linq_util import Select
 import lark
 
 import ast
+import sys
 
 
 class PythonASTToTextASTTransformer(ast.NodeVisitor):
@@ -117,7 +118,10 @@ class TextASTToPythonASTTransformer(lark.Transformer):
         elif node_type == 'call':
             if len(fields) < 1:
                 raise SyntaxError('Call node must have at least one field; found ' + len(fields))
-            return ast.Call(func=fields[0], args=fields[1:], keywords=[])
+            if sys.version_info[0] < 3:
+                return ast.Call(func=fields[0], args=fields[1:], keywords=[], starargs=None, kwargs=None)
+            else:
+                return ast.Call(func=fields[0], args=fields[1:], keywords=[])
 
         elif node_type == 'lambda':
             if len(fields) != 2:
@@ -127,14 +131,22 @@ class TextASTToPythonASTTransformer(lark.Transformer):
             for arg in fields[0].elts:
                 if not isinstance(arg, ast.Name):
                     raise SyntaxError('Lambda arguments must variable names; found ' + type(arg))
-            return ast.Lambda(args=ast.arguments(args=[ast.arg(arg=name.id, annotation=None)
-                                                       for name in fields[0].elts],
-                                                 vararg=None,
-                                                 kwonlyargs=[],
-                                                 kw_defaults=[],
-                                                 kwarg=None,
-                                                 defaults=[]),
-                              body=fields[1])
+            if sys.version_info[0] < 3:
+                return ast.Lambda(args=ast.arguments(args=[ast.Name(id=name.id, ctx=ast.Param())
+                                                           for name in fields[0].elts],
+                                                     vararg=None,
+                                                     kwarg=None,
+                                                     defaults=[]),
+                                  body=fields[1])
+            else:
+                return ast.Lambda(args=ast.arguments(args=[ast.arg(arg=name.id, annotation=None)
+                                                           for name in fields[0].elts],
+                                                     vararg=None,
+                                                     kwonlyargs=[],
+                                                     kw_defaults=[],
+                                                     kwarg=None,
+                                                     defaults=[]),
+                                  body=fields[1])
 
         elif node_type == 'Select':
             if len(fields) != 2:
