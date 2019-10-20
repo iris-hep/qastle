@@ -74,6 +74,11 @@ def test_list():
     assert_equivalent_python_text_and_text_ast('[0, 1, 2]', '(list 0 1 2)')
 
 
+def test_tuple():
+    assert python_source_to_text_ast('()') == '(list)'
+    assert python_source_to_text_ast('(0, 1, 2)') == '(list 0 1 2)'
+
+
 def test_attr():
     assert_equivalent_python_text_and_text_ast('a.b', "(attr a 'b')")
 
@@ -81,6 +86,20 @@ def test_attr():
 def test_call():
     assert_equivalent_python_text_and_text_ast('a()', "(call a)")
     assert_equivalent_python_text_and_text_ast('a(0, 1, 2)', "(call a 0 1 2)")
+
+
+def test_unary_operators():
+    assert python_source_to_text_ast('+1') == '1'
+    assert_ast_nodes_are_equal(text_ast_to_python_ast('+1'), ast.parse('1'))
+    assert python_source_to_text_ast('-1') == '-1'
+    assert_ast_nodes_are_equal(text_ast_to_python_ast('-1'), ast.parse('-1'))
+
+
+def test_binary_operators():
+    assert_equivalent_python_text_and_text_ast('1 + 2', "(+ 1 2)")
+    assert_equivalent_python_text_and_text_ast('1 - 2', "(- 1 2)")
+    assert_equivalent_python_text_and_text_ast('1 * 2', "(* 1 2)")
+    assert_equivalent_python_text_and_text_ast('1 / 2', "(/ 1 2)")
 
 
 def test_lambda():

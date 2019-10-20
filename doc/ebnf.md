@@ -47,8 +47,10 @@ symbol =   "!" | '"' | "#" | "$" | "%" | "&" | "'" | "(" | ")" | "*" | "+" | ","
          | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" | "[" | "\"
          | "]" | "^" | "_" | "`" | "{" | "|" | "}" | "~" ;
 
-numeric literal = (unsigned integer | unsigned integer, ".", [unsigned integer] | [unsigned integer], ".", unsigned integer),
-                  [("E" | "e"), ["+" | "-"], unsigned integer] ;
+numeric literal = [sign], (unsigned integer | unsigned integer, ".", [unsigned integer] | [unsigned integer], ".", unsigned integer),
+                  [("E" | "e"), [sign], unsigned integer] ;
+
+sign = "+" | "-" ;
 
 unsigned integer = digit, {digit} ;
 
@@ -56,6 +58,8 @@ composite = "(", {whitespace character}, node type,
                  {whitespace character, {whitespace character}, node},
                  {whitespace character}, ")" ;
 
-node type = letter, {letter} ;
+node type = letter, {letter} | operator symbol;
+
+operator symbol = "*" | "+" | "-" | "/" ;
 
 ```

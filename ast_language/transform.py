@@ -6,6 +6,12 @@ import ast
 import sys
 
 
+binary_operator_strings = {ast.Add:  '+',
+                           ast.Sub:  '-',
+                           ast.Mult: '*',
+                           ast.Div:  '/'}
+
+
 class PythonASTToTextASTTransformer(ast.NodeVisitor):
     def visit_Module(self, node):
         n_children = len(node.body)
@@ -48,6 +54,22 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
                                                self.visit(node.func),
                                                *[self.visit(arg) for arg in node.args])
 
+    def visit_UnaryOp(self, node):
+        if isinstance(node.op, ast.UAdd):
+            return self.visit(node.operand)
+        elif isinstance(node.op, ast.USub):
+            if isinstance(node.operand, ast.Num):
+                return self.visit(ast.Num(n=-node.operand.n))
+            else:
+                raise SyntaxError('Unsupported unary - operand type: ' + type(node.operand))
+        else:
+            raise SyntaxError('Unsupported unary operator: ' + type(node.op))
+
+    def visit_BinOp(self, node):
+        return self.make_composite_node_string(binary_operator_strings[type(node.op)],
+                                               self.visit(node.left),
+                                               self.visit(node.right))
+
     def visit_Lambda(self, node):
         return self.make_composite_node_string('lambda',
                                                self.visit(node.args),
@@ -88,7 +110,13 @@ class TextASTToPythonASTTransformer(lark.Transformer):
         elif child.type == 'STRING_LITERAL':
             return ast.Str(s=ast.literal_eval(child.value))
         elif child.type == 'NUMERIC_LITERAL':
-            return ast.Num(n=ast.literal_eval(child.value))
+            if child.value[0] == '+':
+                child.value = child.value[1:]
+            number = ast.literal_eval(child.value)
+            if number < 0 and sys.version_info[0] > 2:
+                return ast.UnaryOp(op=ast.USub(), operand=ast.Num(n=-number))
+            else:
+                return ast.Num(n=number)
         else:
             raise Exception('Unknown atom child type: ' + str(child.type))
 
@@ -126,6 +154,38 @@ class TextASTToPythonASTTransformer(lark.Transformer):
                                 kwargs=None)
             else:
                 return ast.Call(func=fields[0], args=fields[1:], keywords=[])
+
+        elif node_type == '*':
+            if len(fields) == 2:
+                return ast.BinOp(left=fields[0], op=ast.Mult(), right=fields[1])
+            else:
+                raise SyntaxError('* operator only supported for two operands; found '
+                                  + len(fields))
+        elif node_type == '+':
+            if len(fields) == 1:
+                return ast.UnaryOp(op=ast.UAdd(), operand=fields[0])
+            elif len(fields) == 2:
+                return ast.BinOp(left=fields[0], op=ast.Add(), right=fields[1])
+            else:
+                raise SyntaxError('+ operator only supported for one or two operands; found '
+                                  + len(fields))
+        elif node_type == '-':
+            if len(fields) == 1:
+                if isinstance(fields[0], ast.Num) and sys.version_info < 3:
+                    return ast.Num(n=-fields[0].n)
+                else:
+                    return ast.UnaryOp(op=ast.USub(), operand=fields[0])
+            elif len(fields) == 2:
+                return ast.BinOp(left=fields[0], op=ast.Sub(), right=fields[1])
+            else:
+                raise SyntaxError('- operator only supported for one or two operands; found '
+                                  + len(fields))
+        elif node_type == '/':
+            if len(fields) == 2:
+                return ast.BinOp(left=fields[0], op=ast.Div(), right=fields[1])
+            else:
+                raise SyntaxError('/ operator only supported for two operands; found '
+                                  + len(fields))
 
         elif node_type == 'lambda':
             if len(fields) != 2:
