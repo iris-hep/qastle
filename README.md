@@ -49,7 +49,7 @@ All defined s-expressions are listed here, though this specification will be exp
   - Attributes: `(attr <object> <attribute>)`
     - `attribute` must be a string literal
   - Function calls: `(call <function> <argument>*)`
-  - Binary operators: `(<operator> <operand> <operand)`
+  - Binary operators: `(<operator> <operand> <operand>)`
       - `<operator>` must be one of `+`, `-`, `*`, or `/`
   - Lambdas: `(lambda <arguments> <expression>)`
     - `arguments` must be a `list` containing only variable names
