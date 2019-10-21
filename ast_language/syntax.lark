@@ -19,8 +19,12 @@ STRING_LITERAL:    "'" (/[^']/ | ESCAPE_SEQUENCE)*  "'"
 
 ESCAPE_SEQUENCE: "\\" /./
 
-NUMERIC_LITERAL: (DIGIT+ "." DIGIT* | DIGIT* "." DIGIT+ | DIGIT+) [("E" | "e") ["+" | "-"] DIGIT+]
+NUMERIC_LITERAL: [SIGN] (DIGIT+ "." DIGIT* | DIGIT* "." DIGIT+ | DIGIT+) [("E" | "e") [SIGN] DIGIT+]
+
+SIGN: "+" | "-"
 
 composite: "(" WHITESPACE* NODE_TYPE (WHITESPACE+ node)* WHITESPACE* ")"
 
-NODE_TYPE: LETTER+
+NODE_TYPE: LETTER+ | OPERATOR_SYMBOL
+
+OPERATOR_SYMBOL: "*" | "+" | "-" | "/"
