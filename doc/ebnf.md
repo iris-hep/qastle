@@ -10,14 +10,16 @@ The syntactic primary is a `record`, which is either empty or holds one top-leve
 
 ```ebnf
 
-record = expression | {whitespace chracter} ;
+record = expression | [whitespace] ;
 
-expression = {whitespace character} node {whitespace character} ;
+expression = [whitespace], node, [whitespace] ;
 
-whitespace character =   " "
-                       | ? ISO 6429 character Horizontal Tabulation ?
+whitespace = whitespace character, {whitespace character} ;
+
+whitespace character =   ? ISO 6429 character Horizontal Tabulation ?
+                       | ? ISO 6429 character Line Feed ?
                        | ? ISO 6429 character Carriage Return ?
-                       | ? ISO 6429 character Line Feed ? ;
+                       | " " ;
 
 node = atom | composite ;
 
@@ -39,26 +41,28 @@ digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
 string literal =   "'", {character - "'" | escape sequence}, "'"
                  | '"', {character - '"' | escape sequence}, '"' ;
 
-escape sequence = "\", character ;
-
 character = alphanumeric character | symbol | whitespace character ;
 
 symbol =   "!" | '"' | "#" | "$" | "%" | "&" | "'" | "(" | ")" | "*" | "+" | ","
          | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" | "[" | "\"
          | "]" | "^" | "_" | "`" | "{" | "|" | "}" | "~" ;
 
-numeric literal = [sign], (unsigned integer | unsigned integer, ".", [unsigned integer] | [unsigned integer], ".", unsigned integer),
-                  [("E" | "e"), [sign], unsigned integer] ;
+escape sequence = "\", character ;
+
+numeric literal = (integer, [".", [unsigned integer]] | ".", [unsigned integer]),
+                  [("E" | "e"), integer] ;
+
+integer = [sign], unsigned_integer ;
 
 sign = "+" | "-" ;
 
 unsigned integer = digit, {digit} ;
 
-composite = "(", {whitespace character}, node type,
-                 {whitespace character, {whitespace character}, node},
-                 {whitespace character}, ")" ;
+composite = "(", [whitespace],
+            node type, {whitespace, node},
+            [whitespace], ")" ;
 
-node type = letter, {letter} | operator symbol;
+node type = letter, {letter} | operator symbol ;
 
 operator symbol = "*" | "+" | "-" | "/" ;
 

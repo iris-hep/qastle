@@ -1,8 +1,10 @@
-record: expression | WHITESPACE*
+record: expression | [WHITESPACE]
 
-expression: WHITESPACE* node WHITESPACE*
+expression: [WHITESPACE] node [WHITESPACE]
 
-WHITESPACE: " " | "\t" | "\r" | "\n"
+WHITESPACE: WHITESPACE_CHARACTER+
+
+WHITESPACE_CHARACTER: "\t" | "\n" | "\r" | " "
 
 ?node: atom | composite
 
@@ -14,16 +16,19 @@ LETTER: "A".."Z" | "a".."z"
 
 DIGIT: "0".."9"
 
-STRING_LITERAL:    "'" (/[^']/ | ESCAPE_SEQUENCE)*  "'"
-                | "\"" (/[^"]/ | ESCAPE_SEQUENCE)* "\""
+STRING_LITERAL:    "'" (/[^']/ | ESCAPE_SEQUENCE)*  "'" | "\"" (/[^"]/ | ESCAPE_SEQUENCE)* "\""
 
 ESCAPE_SEQUENCE: "\\" /./
 
-NUMERIC_LITERAL: [SIGN] (DIGIT+ "." DIGIT* | DIGIT* "." DIGIT+ | DIGIT+) [("E" | "e") [SIGN] DIGIT+]
+NUMERIC_LITERAL: (INTEGER ["." [UNSIGNED_INTEGER]] | "." UNSIGNED_INTEGER) [("E" | "e") INTEGER]
+
+INTEGER: [SIGN] UNSIGNED_INTEGER
 
 SIGN: "+" | "-"
 
-composite: "(" WHITESPACE* NODE_TYPE (WHITESPACE+ node)* WHITESPACE* ")"
+UNSIGNED_INTEGER: DIGIT+
+
+composite: "(" [WHITESPACE] NODE_TYPE (WHITESPACE node)* [WHITESPACE] ")"
 
 NODE_TYPE: LETTER+ | OPERATOR_SYMBOL
 
