@@ -32,4 +32,4 @@ composite: "(" [WHITESPACE] NODE_TYPE (WHITESPACE node)* [WHITESPACE] ")"
 
 NODE_TYPE: LETTER+ | OPERATOR_SYMBOL
 
-OPERATOR_SYMBOL: "*" | "+" | "-" | "/"
+OPERATOR_SYMBOL: "*" | "+" | "-" | "/" | "==" | "!=" | "<=" | "<" | ">=" | ">"

@@ -102,6 +102,15 @@ def test_binary_operators():
     assert_equivalent_python_text_and_text_ast('1 / 2', "(/ 1 2)")
 
 
+def test_comparison_operators():
+    assert_equivalent_python_text_and_text_ast('1 == 2', "(== 1 2)")
+    assert_equivalent_python_text_and_text_ast('1 != 2', "(!= 1 2)")
+    assert_equivalent_python_text_and_text_ast('1 < 2', "(< 1 2)")
+    assert_equivalent_python_text_and_text_ast('1 <= 2', "(<= 1 2)")
+    assert_equivalent_python_text_and_text_ast('1 > 2', "(> 1 2)")
+    assert_equivalent_python_text_and_text_ast('1 >= 2', "(>= 1 2)")
+
+
 def test_lambda():
     assert_equivalent_python_text_and_text_ast('lambda: 0', "(lambda (list) 0)")
     assert_equivalent_python_text_and_text_ast('lambda x, y, z: x', "(lambda (list x y z) x)")
