@@ -11,6 +11,13 @@ binary_operator_strings = {ast.Add:  '+',
                            ast.Mult: '*',
                            ast.Div:  '/'}
 
+comparison_operator_strings = {ast.Eq:    '==',
+                               ast.NotEq: '!=',
+                               ast.Lt:    '<',
+                               ast.LtE:   '<=',
+                               ast.Gt:    '>',
+                               ast.GtE:   '>='}
+
 
 class PythonASTToTextASTTransformer(ast.NodeVisitor):
     def visit_Module(self, node):
@@ -69,6 +76,14 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
         return self.make_composite_node_string(binary_operator_strings[type(node.op)],
                                                self.visit(node.left),
                                                self.visit(node.right))
+
+    def visit_Compare(self, node):
+        rep = self.visit(node.left)
+        for operator, comparator in zip(node.ops, node.comparators):
+            rep = self.make_composite_node_string(comparison_operator_strings[type(operator)],
+                                                  rep,
+                                                  self.visit(comparator))
+        return rep
 
     def visit_Lambda(self, node):
         return self.make_composite_node_string('lambda',
@@ -185,6 +200,47 @@ class TextASTToPythonASTTransformer(lark.Transformer):
                 return ast.BinOp(left=fields[0], op=ast.Div(), right=fields[1])
             else:
                 raise SyntaxError('/ operator only supported for two operands; found '
+                                  + len(fields))
+
+        elif node_type == '==':
+            if len(fields) == 2:
+                return ast.Compare(left=fields[0], ops=[ast.Eq()], comparators=[fields[1]])
+            else:
+                raise SyntaxError('== operator only supported for two operands; found '
+                                  + len(fields))
+        elif node_type == '!=':
+            if len(fields) == 2:
+                return ast.Compare(left=fields[0], ops=[ast.NotEq()], comparators=[fields[1]])
+            else:
+                raise SyntaxError('!= operator only supported for two operands; found '
+                                  + len(fields))
+
+        elif node_type == '<':
+            if len(fields) == 2:
+                return ast.Compare(left=fields[0], ops=[ast.Lt()], comparators=[fields[1]])
+            else:
+                raise SyntaxError('< operator only supported for two operands; found '
+                                  + len(fields))
+
+        elif node_type == '<=':
+            if len(fields) == 2:
+                return ast.Compare(left=fields[0], ops=[ast.LtE()], comparators=[fields[1]])
+            else:
+                raise SyntaxError('<= operator only supported for two operands; found '
+                                  + len(fields))
+
+        elif node_type == '>':
+            if len(fields) == 2:
+                return ast.Compare(left=fields[0], ops=[ast.Gt()], comparators=[fields[1]])
+            else:
+                raise SyntaxError('> operator only supported for two operands; found '
+                                  + len(fields))
+
+        elif node_type == '>=':
+            if len(fields) == 2:
+                return ast.Compare(left=fields[0], ops=[ast.GtE()], comparators=[fields[1]])
+            else:
+                raise SyntaxError('>= operator only supported for two operands; found '
                                   + len(fields))
 
         elif node_type == 'lambda':
