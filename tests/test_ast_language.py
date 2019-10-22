@@ -159,3 +159,27 @@ def test_Aggregate():
     text_ast = '(Aggregate data_source 0 (lambda (list v e) (+ v e)))'
     assert_equivalent_python_ast_and_text_ast(wrap_ast(aggregate_node),
                                               text_ast)
+
+
+def test_Count():
+    first_node = Count(source=unwrap_ast(ast.parse('data_source')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(first_node),
+                                              '(Count data_source)')
+
+
+def test_Max():
+    first_node = Max(source=unwrap_ast(ast.parse('data_source')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(first_node),
+                                              '(Max data_source)')
+
+
+def test_Min():
+    first_node = Min(source=unwrap_ast(ast.parse('data_source')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(first_node),
+                                              '(Min data_source)')
+
+
+def test_Sum():
+    first_node = Sum(source=unwrap_ast(ast.parse('data_source')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(first_node),
+                                              '(Sum data_source)')

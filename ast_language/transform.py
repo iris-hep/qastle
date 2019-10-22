@@ -1,4 +1,4 @@
-from .linq_util import Where, Select, SelectMany, First, Aggregate
+from .linq_util import Where, Select, SelectMany, First, Aggregate, Count, Max, Min, Sum
 
 import lark
 
@@ -153,6 +153,18 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
                                                self.visit(node.source),
                                                self.visit(node.seed),
                                                self.visit(node.func))
+
+    def visit_Count(self, node):
+        return self.make_composite_node_string('Count', self.visit(node.source))
+
+    def visit_Max(self, node):
+        return self.make_composite_node_string('Max', self.visit(node.source))
+
+    def visit_Min(self, node):
+        return self.make_composite_node_string('Min', self.visit(node.source))
+
+    def visit_Sum(self, node):
+        return self.make_composite_node_string('Sum', self.visit(node.source))
 
     def generic_visit(self, node):
         raise SyntaxError('Unsupported node type: ' + str(type(node)))
@@ -337,6 +349,26 @@ class TextASTToPythonASTTransformer(lark.Transformer):
                 raise SyntaxError('Aggregate func must have exactly two arguments; found '
                                   + str(len(fields[2].args.args)))
             return Aggregate(source=fields[0], seed=fields[1], func=fields[2])
+
+        elif node_type == 'Count':
+            if len(fields) != 1:
+                raise SyntaxError('Count node must have one field; found ' + str(len(fields)))
+            return Count(source=fields[0])
+
+        elif node_type == 'Max':
+            if len(fields) != 1:
+                raise SyntaxError('Max node must have one field; found ' + str(len(fields)))
+            return Max(source=fields[0])
+
+        elif node_type == 'Min':
+            if len(fields) != 1:
+                raise SyntaxError('Min node must have one field; found ' + str(len(fields)))
+            return Min(source=fields[0])
+
+        elif node_type == 'Sum':
+            if len(fields) != 1:
+                raise SyntaxError('Sum node must have one field; found ' + str(len(fields)))
+            return Sum(source=fields[0])
 
         else:
             raise SyntaxError('Unknown composite node type: ' + node_type)

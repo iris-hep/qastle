@@ -38,6 +38,30 @@ class Aggregate(ast.AST):
         self.func = func
 
 
+class Count(ast.AST):
+    def __init__(self, source):
+        self._fields = ['source']
+        self.source = source
+
+
+class Max(ast.AST):
+    def __init__(self, source):
+        self._fields = ['source']
+        self.source = source
+
+
+class Min(ast.AST):
+    def __init__(self, source):
+        self._fields = ['source']
+        self.source = source
+
+
+class Sum(ast.AST):
+    def __init__(self, source):
+        self._fields = ['source']
+        self.source = source
+
+
 class InsertLINQNodesTransformer(ast.NodeTransformer):
     def visit_Call(self, node):
         if isinstance(node.func, ast.Attribute):
@@ -65,6 +89,10 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
                 if not isinstance(node.args[0], ast.Lambda):
                     raise SyntaxError('SelectMany() call argument must be a lambda')
                 return SelectMany(source=node.func.value, selector=node.args[0])
+            elif node.func.attr == 'First':
+                if len(node.args) != 0:
+                    raise SyntaxError('First() call must have zero arguments')
+                return First(source=node.func.value)
             elif node.func.attr == 'Aggregate':
                 if len(node.args) != 2:
                     raise SyntaxError('Aggregate() call must have exactly two arguments; found'
@@ -74,10 +102,22 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
                 if not isinstance(node.args[1], ast.Lambda):
                     raise SyntaxError('Second Aggregate() call argument must be a lambda')
                 return Aggregate(source=node.func.value, seed=node.args[0], func=node.args[1])
-            elif node.func.attr == 'First':
+            elif node.func.attr == 'Count':
                 if len(node.args) != 0:
-                    raise SyntaxError('First() call must have zero arguments')
-                return First(source=node.func.value)
+                    raise SyntaxError('Count() call must have zero arguments')
+                return Count(source=node.func.value)
+            elif node.func.attr == 'Max':
+                if len(node.args) != 0:
+                    raise SyntaxError('Max() call must have zero arguments')
+                return Max(source=node.func.value)
+            elif node.func.attr == 'Min':
+                if len(node.args) != 0:
+                    raise SyntaxError('Min() call must have zero arguments')
+                return Min(source=node.func.value)
+            elif node.func.attr == 'Sum':
+                if len(node.args) != 0:
+                    raise SyntaxError('Sum() call must have zero arguments')
+                return Sum(source=node.func.value)
             else:
                 return self.generic_visit(node)
         else:
