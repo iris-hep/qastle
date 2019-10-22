@@ -72,7 +72,7 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
                     node.args[0] = unwrap_ast(ast.parse(node.args[0].s))
                 if not isinstance(node.args[0], ast.Lambda):
                     raise SyntaxError('Where() call argument must be a lambda')
-                return Where(source=node.func.value, predicate=node.args[0])
+                return Where(source=self.visit(node.func.value), predicate=self.visit(node.args[0]))
             elif node.func.attr == 'Select':
                 if len(node.args) != 1:
                     raise SyntaxError('Select() call must have exactly one argument')
@@ -80,7 +80,7 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
                     node.args[0] = unwrap_ast(ast.parse(node.args[0].s))
                 if not isinstance(node.args[0], ast.Lambda):
                     raise SyntaxError('Select() call argument must be a lambda')
-                return Select(source=node.func.value, selector=node.args[0])
+                return Select(source=self.visit(node.func.value), selector=self.visit(node.args[0]))
             elif node.func.attr == 'SelectMany':
                 if len(node.args) != 1:
                     raise SyntaxError('SelectMany() call must have exactly one argument')
@@ -88,11 +88,11 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
                     node.args[0] = unwrap_ast(ast.parse(node.args[0].s))
                 if not isinstance(node.args[0], ast.Lambda):
                     raise SyntaxError('SelectMany() call argument must be a lambda')
-                return SelectMany(source=node.func.value, selector=node.args[0])
+                return SelectMany(source=self.visit(node.func.value), selector=self.visit(node.args[0]))
             elif node.func.attr == 'First':
                 if len(node.args) != 0:
                     raise SyntaxError('First() call must have zero arguments')
-                return First(source=node.func.value)
+                return First(source=self.visit(node.func.value))
             elif node.func.attr == 'Aggregate':
                 if len(node.args) != 2:
                     raise SyntaxError('Aggregate() call must have exactly two arguments; found'
@@ -101,23 +101,23 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
                     node.args[0] = unwrap_ast(ast.parse(node.args[0].s))
                 if not isinstance(node.args[1], ast.Lambda):
                     raise SyntaxError('Second Aggregate() call argument must be a lambda')
-                return Aggregate(source=node.func.value, seed=node.args[0], func=node.args[1])
+                return Aggregate(source=self.visit(node.func.value), seed=self.visit(node.args[0]), func=self.visit(node.args[1]))
             elif node.func.attr == 'Count':
                 if len(node.args) != 0:
                     raise SyntaxError('Count() call must have zero arguments')
-                return Count(source=node.func.value)
+                return Count(source=self.visit(node.func.value))
             elif node.func.attr == 'Max':
                 if len(node.args) != 0:
                     raise SyntaxError('Max() call must have zero arguments')
-                return Max(source=node.func.value)
+                return Max(source=self.visit(node.func.value))
             elif node.func.attr == 'Min':
                 if len(node.args) != 0:
                     raise SyntaxError('Min() call must have zero arguments')
-                return Min(source=node.func.value)
+                return Min(source=self.visit(node.func.value))
             elif node.func.attr == 'Sum':
                 if len(node.args) != 0:
                     raise SyntaxError('Sum() call must have zero arguments')
-                return Sum(source=node.func.value)
+                return Sum(source=self.visit(node.func.value))
             else:
                 return self.generic_visit(node)
         else:
