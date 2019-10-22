@@ -1,4 +1,4 @@
-from .linq_util import Where, Select, SelectMany, First
+from .linq_util import Where, Select, SelectMany, First, Aggregate, Count, Max, Min, Sum
 
 import lark
 
@@ -80,7 +80,7 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
             if isinstance(node.operand, ast.Num):
                 return self.visit(ast.Num(n=-node.operand.n))
             else:
-                raise SyntaxError('Unsupported unary - operand type: ' + type(node.operand))
+                raise SyntaxError('Unsupported unary - operand type: ' + str(type(node.operand)))
         else:
             return self.make_composite_node_string(op_strings[type(node.op)],
                                                    self.visit(node.operand))
@@ -93,7 +93,7 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
     def visit_BoolOp(self, node):
         if len(node.values) < 2:
             raise SyntaxError('Boolean operator must have at least 2 operands; found: '
-                              + len(node.values))
+                              + str(len(node.values)))
         rep = self.visit(node.values[0])
         for value in node.values[1:]:
             rep = self.make_composite_node_string(op_strings[type(node.op)],
@@ -104,7 +104,7 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
     def visit_Compare(self, node):
         if len(node.ops) < 1:
             raise SyntaxError('Compare node must have at least 1 operation; found: '
-                              + len(node.ops))
+                              + str(len(node.ops)))
         left = self.visit(node.left)
         right = self.visit(node.comparators[0])
         rep = self.make_composite_node_string(op_strings[type(node.ops[0])],
@@ -147,6 +147,24 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
 
     def visit_First(self, node):
         return self.make_composite_node_string('First', self.visit(node.source))
+
+    def visit_Aggregate(self, node):
+        return self.make_composite_node_string('Aggregate',
+                                               self.visit(node.source),
+                                               self.visit(node.seed),
+                                               self.visit(node.func))
+
+    def visit_Count(self, node):
+        return self.make_composite_node_string('Count', self.visit(node.source))
+
+    def visit_Max(self, node):
+        return self.make_composite_node_string('Max', self.visit(node.source))
+
+    def visit_Min(self, node):
+        return self.make_composite_node_string('Min', self.visit(node.source))
+
+    def visit_Sum(self, node):
+        return self.make_composite_node_string('Sum', self.visit(node.source))
 
     def generic_visit(self, node):
         raise SyntaxError('Unsupported node type: ' + str(type(node)))
@@ -203,14 +221,15 @@ class TextASTToPythonASTTransformer(lark.Transformer):
 
         elif node_type == 'attr':
             if len(fields) != 2:
-                raise SyntaxError('Attribute node must have two fields; found ' + len(fields))
+                raise SyntaxError('Attribute node must have two fields; found ' + str(len(fields)))
             if not isinstance(fields[1], ast.Str):
-                raise SyntaxError('Attribute name must be a string; found ' + type(fields[1]))
+                raise SyntaxError('Attribute name must be a string; found ' + str(type(fields[1])))
             return ast.Attribute(value=fields[0], attr=fields[1].s, ctx=ast.Load())
 
         elif node_type == 'call':
             if len(fields) < 1:
-                raise SyntaxError('Call node must have at least one field; found ' + len(fields))
+                raise SyntaxError('Call node must have at least one field; found '
+                                  + str(len(fields)))
             if sys.version_info[0] < 3:
                 return ast.Call(func=fields[0],
                                 args=fields[1:],
@@ -226,7 +245,7 @@ class TextASTToPythonASTTransformer(lark.Transformer):
             else:
                 raise SyntaxError(UnaryOp_ops[node_type]
                                   + ' operator only supported for one operand; found '
-                                  + len(fields))
+                                  + str(len(fields)))
 
         elif node_type in BinOp_ops:
             if len(fields) == 2:
@@ -234,7 +253,7 @@ class TextASTToPythonASTTransformer(lark.Transformer):
             else:
                 raise SyntaxError(BinOp_ops[node_type]
                                   + ' operator only supported for two operands; found '
-                                  + len(fields))
+                                  + str(len(fields)))
 
         elif node_type in BoolOp_ops:
             if len(fields) == 2:
@@ -242,7 +261,7 @@ class TextASTToPythonASTTransformer(lark.Transformer):
             else:
                 raise SyntaxError(BoolOp_ops[node_type]
                                   + ' operator only supported for two operands; found '
-                                  + len(fields))
+                                  + str(len(fields)))
 
         elif node_type in Compare_ops:
             if len(fields) == 2:
@@ -252,16 +271,18 @@ class TextASTToPythonASTTransformer(lark.Transformer):
             else:
                 raise SyntaxError(Compare_ops[node_type]
                                   + ' operator only supported for two operands; found '
-                                  + len(fields))
+                                  + str(len(fields)))
 
         elif node_type == 'lambda':
             if len(fields) != 2:
-                raise SyntaxError('Lambda node must have two fields; found ' + len(fields))
+                raise SyntaxError('Lambda node must have two fields; found ' + str(len(fields)))
             if not isinstance(fields[0], ast.List):
-                raise SyntaxError('Lambda arguments must be in a list; found ' + type(fields[0]))
+                raise SyntaxError('Lambda arguments must be in a list; found '
+                                  + str(type(fields[0])))
             for arg in fields[0].elts:
                 if not isinstance(arg, ast.Name):
-                    raise SyntaxError('Lambda arguments must variable names; found ' + type(arg))
+                    raise SyntaxError('Lambda arguments must variable names; found '
+                                      + str(type(arg)))
             if sys.version_info[0] < 3:
                 return ast.Lambda(args=ast.arguments(args=[ast.Name(id=name.id, ctx=ast.Param())
                                                            for name in fields[0].elts],
@@ -281,38 +302,73 @@ class TextASTToPythonASTTransformer(lark.Transformer):
 
         elif node_type == 'Where':
             if len(fields) != 2:
-                raise SyntaxError('Where node must have two fields; found ' + len(fields))
+                raise SyntaxError('Where node must have two fields; found ' + str(len(fields)))
             if not isinstance(fields[1], ast.Lambda):
-                raise SyntaxError('Where predicate must be a lambda; found ' + type(fields[1]))
+                raise SyntaxError('Where predicate must be a lambda; found '
+                                  + str(type(fields[1])))
             if len(fields[1].args.args) != 1:
                 raise SyntaxError('Where predicate must have exactly one argument; found '
-                                  + len(fields[1].args.args))
+                                  + str(len(fields[1].args.args)))
             return Where(source=fields[0], predicate=fields[1])
 
         elif node_type == 'Select':
             if len(fields) != 2:
-                raise SyntaxError('Select node must have two fields; found ' + len(fields))
+                raise SyntaxError('Select node must have two fields; found ' + str(len(fields)))
             if not isinstance(fields[1], ast.Lambda):
-                raise SyntaxError('Select selector must be a lambda; found ' + type(fields[1]))
+                raise SyntaxError('Select selector must be a lambda; found '
+                                  + str(type(fields[1])))
             if len(fields[1].args.args) != 1:
                 raise SyntaxError('Select selector must have exactly one argument; found '
-                                  + len(fields[1].args.args))
+                                  + str(len(fields[1].args.args)))
             return Select(source=fields[0], selector=fields[1])
 
         elif node_type == 'SelectMany':
             if len(fields) != 2:
-                raise SyntaxError('SelectMany node must have two fields; found ' + len(fields))
+                raise SyntaxError('SelectMany node must have two fields; found '
+                                  + str(len(fields)))
             if not isinstance(fields[1], ast.Lambda):
-                raise SyntaxError('SelectMany selector must be a lambda; found ' + type(fields[1]))
+                raise SyntaxError('SelectMany selector must be a lambda; found '
+                                  + str(type(fields[1])))
             if len(fields[1].args.args) != 1:
                 raise SyntaxError('SelectMany selector must have exactly one argument; found '
-                                  + len(fields[1].args.args))
+                                  + str(len(fields[1].args.args)))
             return SelectMany(source=fields[0], selector=fields[1])
 
         elif node_type == 'First':
             if len(fields) != 1:
-                raise SyntaxError('First node must have one field; found ' + len(fields))
+                raise SyntaxError('First node must have one field; found ' + str(len(fields)))
             return First(source=fields[0])
+
+        elif node_type == 'Aggregate':
+            if len(fields) != 3:
+                raise SyntaxError('Aggregate node must have three fields; found '
+                                  + str(len(fields)))
+            if not isinstance(fields[2], ast.Lambda):
+                raise SyntaxError('Aggregate func must be a lambda; found ' + str(type(fields[1])))
+            if len(fields[2].args.args) != 2:
+                raise SyntaxError('Aggregate func must have exactly two arguments; found '
+                                  + str(len(fields[2].args.args)))
+            return Aggregate(source=fields[0], seed=fields[1], func=fields[2])
+
+        elif node_type == 'Count':
+            if len(fields) != 1:
+                raise SyntaxError('Count node must have one field; found ' + str(len(fields)))
+            return Count(source=fields[0])
+
+        elif node_type == 'Max':
+            if len(fields) != 1:
+                raise SyntaxError('Max node must have one field; found ' + str(len(fields)))
+            return Max(source=fields[0])
+
+        elif node_type == 'Min':
+            if len(fields) != 1:
+                raise SyntaxError('Min node must have one field; found ' + str(len(fields)))
+            return Min(source=fields[0])
+
+        elif node_type == 'Sum':
+            if len(fields) != 1:
+                raise SyntaxError('Sum node must have one field; found ' + str(len(fields)))
+            return Sum(source=fields[0])
 
         else:
             raise SyntaxError('Unknown composite node type: ' + node_type)
