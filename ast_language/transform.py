@@ -6,10 +6,26 @@ import ast
 import sys
 
 
-binary_operator_strings = {ast.Add:  '+',
-                           ast.Sub:  '-',
-                           ast.Mult: '*',
-                           ast.Div:  '/'}
+UnaryOp_ops = {'not': ast.Not}
+
+BinOp_ops = {'+': ast.Add,
+             '-': ast.Sub,
+             '*': ast.Mult,
+             '/': ast.Div}
+
+BoolOp_ops = {'and': ast.And,
+              'or':  ast.Or}
+
+Compare_ops = {'==': ast.Eq,
+               '!=': ast.NotEq,
+               '<':  ast.Lt,
+               '<=': ast.LtE,
+               '>':  ast.Gt,
+               '>=': ast.GtE}
+
+op_strings = {value: key
+              for dictionary in [UnaryOp_ops, BinOp_ops, BoolOp_ops, Compare_ops]
+              for key, value in dictionary.items()}
 
 
 class PythonASTToTextASTTransformer(ast.NodeVisitor):
@@ -34,6 +50,9 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
 
     def visit_Str(self, node):
         return repr(node.s)
+
+    def visit_NameConstant(self, node):
+        return repr(node.value)
 
     @staticmethod
     def make_composite_node_string(node_type, *fields):
@@ -63,12 +82,42 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
             else:
                 raise SyntaxError('Unsupported unary - operand type: ' + type(node.operand))
         else:
-            raise SyntaxError('Unsupported unary operator: ' + type(node.op))
+            return self.make_composite_node_string(op_strings[type(node.op)],
+                                                   self.visit(node.operand))
 
     def visit_BinOp(self, node):
-        return self.make_composite_node_string(binary_operator_strings[type(node.op)],
+        return self.make_composite_node_string(op_strings[type(node.op)],
                                                self.visit(node.left),
                                                self.visit(node.right))
+
+    def visit_BoolOp(self, node):
+        if len(node.values) < 2:
+            raise SyntaxError('Boolean operator must have at least 2 operands; found: '
+                              + len(node.values))
+        rep = self.visit(node.values[0])
+        for value in node.values[1:]:
+            rep = self.make_composite_node_string(op_strings[type(node.op)],
+                                                  rep,
+                                                  self.visit(value))
+        return rep
+
+    def visit_Compare(self, node):
+        if len(node.ops) < 1:
+            raise SyntaxError('Compare node must have at least 1 operation; found: '
+                              + len(node.ops))
+        left = self.visit(node.left)
+        right = self.visit(node.comparators[0])
+        rep = self.make_composite_node_string(op_strings[type(node.ops[0])],
+                                              left,
+                                              right)
+        for operator, comparator in zip(node.ops[1:], node.comparators[1:]):
+            left = right
+            right = self.visit(comparator)
+            new_comparison = self.make_composite_node_string(op_strings[type(operator)],
+                                                             left,
+                                                             right)
+            rep = self.make_composite_node_string('and', rep, new_comparison)
+        return rep
 
     def visit_Lambda(self, node):
         return self.make_composite_node_string('lambda',
@@ -116,7 +165,10 @@ class TextASTToPythonASTTransformer(lark.Transformer):
     def atom(self, children):
         child = children[0]
         if child.type == 'IDENTIFIER':
-            return ast.Name(id=child.value, ctx=ast.Load())
+            if child.value in ['True', 'False', 'None'] and sys.version_info[0] > 2:
+                return ast.NameConstant(value=ast.literal_eval(child.value))
+            else:
+                return ast.Name(id=child.value, ctx=ast.Load())
         elif child.type == 'STRING_LITERAL':
             return ast.Str(s=ast.literal_eval(child.value))
         elif child.type == 'NUMERIC_LITERAL':
@@ -165,36 +217,38 @@ class TextASTToPythonASTTransformer(lark.Transformer):
             else:
                 return ast.Call(func=fields[0], args=fields[1:], keywords=[])
 
-        elif node_type == '*':
-            if len(fields) == 2:
-                return ast.BinOp(left=fields[0], op=ast.Mult(), right=fields[1])
-            else:
-                raise SyntaxError('* operator only supported for two operands; found '
-                                  + len(fields))
-        elif node_type == '+':
+        elif node_type in UnaryOp_ops:
             if len(fields) == 1:
-                return ast.UnaryOp(op=ast.UAdd(), operand=fields[0])
-            elif len(fields) == 2:
-                return ast.BinOp(left=fields[0], op=ast.Add(), right=fields[1])
+                return ast.UnaryOp(op=UnaryOp_ops[node_type](), operand=fields[0])
             else:
-                raise SyntaxError('+ operator only supported for one or two operands; found '
+                raise SyntaxError(UnaryOp_ops[node_type]
+                                  + ' operator only supported for one operand; found '
                                   + len(fields))
-        elif node_type == '-':
-            if len(fields) == 1:
-                if isinstance(fields[0], ast.Num) and sys.version_info < 3:
-                    return ast.Num(n=-fields[0].n)
-                else:
-                    return ast.UnaryOp(op=ast.USub(), operand=fields[0])
-            elif len(fields) == 2:
-                return ast.BinOp(left=fields[0], op=ast.Sub(), right=fields[1])
-            else:
-                raise SyntaxError('- operator only supported for one or two operands; found '
-                                  + len(fields))
-        elif node_type == '/':
+
+        elif node_type in BinOp_ops:
             if len(fields) == 2:
-                return ast.BinOp(left=fields[0], op=ast.Div(), right=fields[1])
+                return ast.BinOp(left=fields[0], op=BinOp_ops[node_type](), right=fields[1])
             else:
-                raise SyntaxError('/ operator only supported for two operands; found '
+                raise SyntaxError(BinOp_ops[node_type]
+                                  + ' operator only supported for two operands; found '
+                                  + len(fields))
+
+        elif node_type in BoolOp_ops:
+            if len(fields) == 2:
+                return ast.BoolOp(op=BoolOp_ops[node_type](), values=fields)
+            else:
+                raise SyntaxError(BoolOp_ops[node_type]
+                                  + ' operator only supported for two operands; found '
+                                  + len(fields))
+
+        elif node_type in Compare_ops:
+            if len(fields) == 2:
+                return ast.Compare(left=fields[0],
+                                   ops=[Compare_ops[node_type]()],
+                                   comparators=[fields[1]])
+            else:
+                raise SyntaxError(Compare_ops[node_type]
+                                  + ' operator only supported for two operands; found '
                                   + len(fields))
 
         elif node_type == 'lambda':
