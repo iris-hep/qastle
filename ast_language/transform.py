@@ -1,4 +1,4 @@
-from .linq_util import Select
+from .linq_util import Select, Where
 
 import lark
 
@@ -85,6 +85,11 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
         return self.make_composite_node_string('Select',
                                                self.visit(node.source),
                                                self.visit(node.selector))
+
+    def visit_Where(self, node):
+        return self.make_composite_node_string('Where',
+                                               self.visit(node.source),
+                                               self.visit(node.predicate))
 
     def generic_visit(self, node):
         raise SyntaxError('Unsupported node type: ' + str(type(node)))
@@ -221,6 +226,16 @@ class TextASTToPythonASTTransformer(lark.Transformer):
                 raise SyntaxError('Select selector must have exactly one argument; found '
                                   + len(fields[1].args.args))
             return Select(source=fields[0], selector=fields[1])
+
+        elif node_type == 'Where':
+            if len(fields) != 2:
+                raise SyntaxError('Where node must have two fields; found ' + len(fields))
+            if not isinstance(fields[1], ast.Lambda):
+                raise SyntaxError('Where predicate must be a lambda; found ' + type(fields[1]))
+            if len(fields[1].args.args) != 1:
+                raise SyntaxError('Where predicate must have exactly one argument; found '
+                                  + len(fields[1].args.args))
+            return Where(source=fields[0], predicate=fields[1])
 
         else:
             raise SyntaxError('Unknown composite node type: ' + node_type)
