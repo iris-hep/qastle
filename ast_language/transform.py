@@ -1,4 +1,4 @@
-from .linq_util import Select, SelectMany, Where
+from .linq_util import Where, Select, SelectMany, First
 
 import lark
 
@@ -130,6 +130,11 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
     def visit_arg(self, node):
         return node.arg
 
+    def visit_Where(self, node):
+        return self.make_composite_node_string('Where',
+                                               self.visit(node.source),
+                                               self.visit(node.predicate))
+
     def visit_Select(self, node):
         return self.make_composite_node_string('Select',
                                                self.visit(node.source),
@@ -140,10 +145,8 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
                                                self.visit(node.source),
                                                self.visit(node.selector))
 
-    def visit_Where(self, node):
-        return self.make_composite_node_string('Where',
-                                               self.visit(node.source),
-                                               self.visit(node.predicate))
+    def visit_First(self, node):
+        return self.make_composite_node_string('First', self.visit(node.source))
 
     def generic_visit(self, node):
         raise SyntaxError('Unsupported node type: ' + str(type(node)))
@@ -276,6 +279,16 @@ class TextASTToPythonASTTransformer(lark.Transformer):
                                                      defaults=[]),
                                   body=fields[1])
 
+        elif node_type == 'Where':
+            if len(fields) != 2:
+                raise SyntaxError('Where node must have two fields; found ' + len(fields))
+            if not isinstance(fields[1], ast.Lambda):
+                raise SyntaxError('Where predicate must be a lambda; found ' + type(fields[1]))
+            if len(fields[1].args.args) != 1:
+                raise SyntaxError('Where predicate must have exactly one argument; found '
+                                  + len(fields[1].args.args))
+            return Where(source=fields[0], predicate=fields[1])
+
         elif node_type == 'Select':
             if len(fields) != 2:
                 raise SyntaxError('Select node must have two fields; found ' + len(fields))
@@ -296,15 +309,10 @@ class TextASTToPythonASTTransformer(lark.Transformer):
                                   + len(fields[1].args.args))
             return SelectMany(source=fields[0], selector=fields[1])
 
-        elif node_type == 'Where':
-            if len(fields) != 2:
-                raise SyntaxError('Where node must have two fields; found ' + len(fields))
-            if not isinstance(fields[1], ast.Lambda):
-                raise SyntaxError('Where predicate must be a lambda; found ' + type(fields[1]))
-            if len(fields[1].args.args) != 1:
-                raise SyntaxError('Where predicate must have exactly one argument; found '
-                                  + len(fields[1].args.args))
-            return Where(source=fields[0], predicate=fields[1])
+        elif node_type == 'First':
+            if len(fields) != 1:
+                raise SyntaxError('First node must have one field; found ' + len(fields))
+            return First(source=fields[0])
 
         else:
             raise SyntaxError('Unknown composite node type: ' + node_type)

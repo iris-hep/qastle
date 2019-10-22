@@ -125,22 +125,28 @@ def test_lambda():
     assert_equivalent_python_text_and_text_ast('lambda x, y, z: x', "(lambda (list x y z) x)")
 
 
+def test_Where():
+    where_node = Where(source=unwrap_ast(ast.parse('data_source')),
+                       predicate=unwrap_ast(ast.parse('lambda e: e')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(where_node),
+                                              '(Where data_source (lambda (list e) e))')
+
+
 def test_Select():
-    select_node = Select(source=ast.parse('data_source').body[0].value,
-                         selector=ast.parse('lambda e: e').body[0].value)
-    assert_equivalent_python_ast_and_text_ast(ast.Module(body=[ast.Expr(value=select_node)]),
+    select_node = Select(source=unwrap_ast(ast.parse('data_source')),
+                         selector=unwrap_ast(ast.parse('lambda e: e')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(select_node),
                                               '(Select data_source (lambda (list e) e))')
 
 
 def test_SelectMany():
-    selectmany_node = SelectMany(source=ast.parse('data_source').body[0].value,
-                                 selector=ast.parse('lambda e: e').body[0].value)
-    assert_equivalent_python_ast_and_text_ast(ast.Module(body=[ast.Expr(value=selectmany_node)]),
+    selectmany_node = SelectMany(source=unwrap_ast(ast.parse('data_source')),
+                                 selector=unwrap_ast(ast.parse('lambda e: e')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(selectmany_node),
                                               '(SelectMany data_source (lambda (list e) e))')
 
 
-def test_Where():
-    where_node = Where(source=ast.parse('data_source').body[0].value,
-                       predicate=ast.parse('lambda e: e').body[0].value)
-    assert_equivalent_python_ast_and_text_ast(ast.Module(body=[ast.Expr(value=where_node)]),
-                                              "(Where data_source (lambda (list e) e))")
+def test_First():
+    first_node = First(source=unwrap_ast(ast.parse('data_source')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(first_node),
+                                              '(First data_source)')
