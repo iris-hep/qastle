@@ -105,9 +105,8 @@ def test_binary_operators():
 
 def test_boolean_operators():
     assert_equivalent_python_text_and_text_ast('True and False', "(and True False)")
-    assert python_source_to_text_ast('a and b and c') == '(and (and a b) c)'
     assert_equivalent_python_text_and_text_ast('True or False', "(or True False)")
-    assert python_source_to_text_ast('a or b or c') == '(or (or a b) c)'
+    assert python_source_to_text_ast('a and b and c') == '(and (and a b) c)'
 
 
 def test_comparison_operators():
@@ -117,6 +116,8 @@ def test_comparison_operators():
     assert_equivalent_python_text_and_text_ast('1 <= 2', "(<= 1 2)")
     assert_equivalent_python_text_and_text_ast('1 > 2', "(> 1 2)")
     assert_equivalent_python_text_and_text_ast('1 >= 2', "(>= 1 2)")
+    assert python_source_to_text_ast('1 < 2 < 3') == '(and (< 1 2) (< 2 3))'
+    assert python_source_to_text_ast('1 < 2 < 3 < 4') == '(and (and (< 1 2) (< 2 3)) (< 3 4))'
 
 
 def test_lambda():
