@@ -30,6 +30,14 @@ class First(ast.AST):
         self.source = source
 
 
+class Aggregate(ast.AST):
+    def __init__(self, source, seed, func):
+        self._fields = ['source', 'seed', 'func']
+        self.source = source
+        self.seed = seed
+        self.func = func
+
+
 class InsertLINQNodesTransformer(ast.NodeTransformer):
     def visit_Call(self, node):
         if isinstance(node.func, ast.Attribute):
@@ -57,6 +65,15 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
                 if not isinstance(node.args[0], ast.Lambda):
                     raise SyntaxError('SelectMany() call argument must be a lambda')
                 return SelectMany(source=node.func.value, selector=node.args[0])
+            elif node.func.attr == 'Aggregate':
+                if len(node.args) != 2:
+                    raise SyntaxError('Aggregate() call must have exactly two arguments; found'
+                                      + str(len(node.args)))
+                if isinstance(node.args[1], ast.Str):
+                    node.args[0] = unwrap_ast(ast.parse(node.args[0].s))
+                if not isinstance(node.args[1], ast.Lambda):
+                    raise SyntaxError('Second Aggregate() call argument must be a lambda')
+                return Aggregate(source=node.func.value, seed=node.args[0], func=node.args[1])
             elif node.func.attr == 'First':
                 if len(node.args) != 0:
                     raise SyntaxError('First() call must have zero arguments')
