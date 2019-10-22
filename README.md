@@ -58,10 +58,19 @@ All defined s-expressions are listed here, though this specification will be exp
       - `<operator>` must be one of `+`, `-`, `*`, `/`, 'and', 'or', `==`, `!=`, `<`, `<=`, `>`, `>=`
   - Lambdas: `(lambda <arguments> <expression>)`
     - `arguments` must be a `list` containing only variable names
+  - Where: `(Where <source> <predicate>)`
+    - `selector` must be a `lambda` with one argument
   - Select: `(Select <source> <selector>)`
     - `selector` must be a `lambda` with one argument
   - SelectMany: `(SelectMany <source> <selector>)`
     - `selector` must be a `lambda` with one argument
+  - First: `(First <source>)`
+  - Aggregate: `(Aggregate <source> <seed> <func>)`
+    - `func` must be a `lambda` with two arguments
+  - Count: `(Count <source>)`
+  - Max: `(Max <source>)`
+  - Min: `(Min <source>)`
+  - Sum: `(Sum <source>)`
 
 
 ## Example
