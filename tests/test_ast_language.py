@@ -113,6 +113,7 @@ def test_Select():
     assert_equivalent_python_ast_and_text_ast(ast.Module(body=[ast.Expr(value=select_node)]),
                                               '(Select data_source (lambda (list e) e))')
 
+
 def test_Where():
     where_node = Where(source=ast.parse('data_source').body[0].value,
                        predicate=ast.parse('lambda e: e').body[0].value)
