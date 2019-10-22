@@ -145,9 +145,10 @@ class TextASTToPythonASTTransformer(lark.Transformer):
     def atom(self, children):
         child = children[0]
         if child.type == 'IDENTIFIER':
-            if child.value in ['True', 'False', 'None']:
+            if child.value in ['True', 'False', 'None'] and sys.version_info[0] > 2:
                 return ast.NameConstant(value=ast.literal_eval(child.value))
-            return ast.Name(id=child.value, ctx=ast.Load())
+            else:
+                return ast.Name(id=child.value, ctx=ast.Load())
         elif child.type == 'STRING_LITERAL':
             return ast.Str(s=ast.literal_eval(child.value))
         elif child.type == 'NUMERIC_LITERAL':
