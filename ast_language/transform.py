@@ -23,8 +23,10 @@ Compare_ops = {'==': ast.Eq,
                '>':  ast.Gt,
                '>=': ast.GtE}
 
-op_strings = {value: key for dictionary in [UnaryOp_ops, BinOp_ops, BoolOp_ops, Compare_ops]
-                         for key, value in dictionary.items()}
+op_strings = {value: key
+              for dictionary in [UnaryOp_ops, BinOp_ops, BoolOp_ops, Compare_ops]
+              for key, value in dictionary.items()}
+
 
 class PythonASTToTextASTTransformer(ast.NodeVisitor):
     def visit_Module(self, node):
@@ -220,7 +222,9 @@ class TextASTToPythonASTTransformer(lark.Transformer):
 
         elif node_type in Compare_ops:
             if len(fields) == 2:
-                return ast.Compare(left=fields[0], ops=[Compare_ops[node_type]()], comparators=[fields[1]])
+                return ast.Compare(left=fields[0],
+                                   ops=[Compare_ops[node_type]()],
+                                   comparators=[fields[1]])
             else:
                 raise SyntaxError(Compare_ops[node_type]
                                   + ' operator only supported for two operands; found '
