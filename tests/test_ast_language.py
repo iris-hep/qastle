@@ -93,6 +93,7 @@ def test_unary_operators():
     assert_ast_nodes_are_equal(text_ast_to_python_ast('+1'), ast.parse('1'))
     assert python_source_to_text_ast('-1') == '-1'
     assert_ast_nodes_are_equal(text_ast_to_python_ast('-1'), ast.parse('-1'))
+    assert_equivalent_python_text_and_text_ast('not True', "(not True)")
 
 
 def test_binary_operators():
@@ -100,6 +101,11 @@ def test_binary_operators():
     assert_equivalent_python_text_and_text_ast('1 - 2', "(- 1 2)")
     assert_equivalent_python_text_and_text_ast('1 * 2', "(* 1 2)")
     assert_equivalent_python_text_and_text_ast('1 / 2', "(/ 1 2)")
+
+
+def test_boolean_operators():
+    assert_equivalent_python_text_and_text_ast('True and False', "(and True False)")
+    assert_equivalent_python_text_and_text_ast('True or False', "(or True False)")
 
 
 def test_comparison_operators():

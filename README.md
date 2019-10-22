@@ -42,15 +42,20 @@ All defined s-expressions are listed here, though this specification will be exp
 - Atomic s-expressions (atoms):
   - Numbers
   - Strings
-  - Variable names
+  - Identifiers
+    - Variable names
+    - Reserved identifiers: `True`, `False`, and `None`
+      - Cannot be used as variable names
 
 - Composite s-expressions:
   - Lists: `(list <item>*)`
   - Attributes: `(attr <object> <attribute>)`
     - `attribute` must be a string literal
   - Function calls: `(call <function> <argument>*)`
+  - Unary operators: `(<operator> <operand>)`
+    - `<operator>` must be `not` (Boolean)
   - Binary operators: `(<operator> <operand> <operand>)`
-      - `<operator>` must be one of `+`, `-`, `*`, or `/`
+      - `<operator>` must be one of `+`, `-`, `*`, `/`, 'and', 'or', `==`, `!=`, `<`, `<=`, `>`, `>=`
   - Lambdas: `(lambda <arguments> <expression>)`
     - `arguments` must be a `list` containing only variable names
   - Select: `(Select <source> <selector>)`
