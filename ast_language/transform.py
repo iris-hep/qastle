@@ -102,11 +102,21 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
         return rep
 
     def visit_Compare(self, node):
-        rep = self.visit(node.left)
-        for operator, comparator in zip(node.ops, node.comparators):
-            rep = self.make_composite_node_string(op_strings[type(operator)],
-                                                  rep,
-                                                  self.visit(comparator))
+        if len(node.ops) < 1:
+            raise SyntaxError('Compare node must have at least 1 operation; found: '
+                              + len(node.ops))
+        left = self.visit(node.left)
+        right = self.visit(node.comparators[0])
+        rep = self.make_composite_node_string(op_strings[type(node.ops[0])],
+                                              left,
+                                              right)
+        for operator, comparator in zip(node.ops[1:], node.comparators[1:]):
+            left = right
+            right = self.visit(comparator)
+            new_comparison = self.make_composite_node_string(op_strings[type(operator)],
+                                                             left,
+                                                             right)
+            rep = self.make_composite_node_string('and', rep, new_comparison)
         return rep
 
     def visit_Lambda(self, node):
