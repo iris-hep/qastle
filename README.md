@@ -55,6 +55,8 @@ All defined s-expressions are listed here, though this specification will be exp
     - `arguments` must be a `list` containing only variable names
   - Select: `(Select <source> <selector>)`
     - `selector` must be a `lambda` with one argument
+  - SelectMany: `(SelectMany <source> <selector>)`
+    - `selector` must be a `lambda` with one argument
 
 
 ## Example
