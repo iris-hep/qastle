@@ -72,7 +72,8 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
                     node.args[0] = unwrap_ast(ast.parse(node.args[0].s))
                 if not isinstance(node.args[0], ast.Lambda):
                     raise SyntaxError('Where() call argument must be a lambda')
-                return Where(source=self.visit(node.func.value), predicate=self.visit(node.args[0]))
+                return Where(source=self.visit(node.func.value),
+                             predicate=self.visit(node.args[0]))
             elif node.func.attr == 'Select':
                 if len(node.args) != 1:
                     raise SyntaxError('Select() call must have exactly one argument')
@@ -80,7 +81,8 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
                     node.args[0] = unwrap_ast(ast.parse(node.args[0].s))
                 if not isinstance(node.args[0], ast.Lambda):
                     raise SyntaxError('Select() call argument must be a lambda')
-                return Select(source=self.visit(node.func.value), selector=self.visit(node.args[0]))
+                return Select(source=self.visit(node.func.value),
+                              selector=self.visit(node.args[0]))
             elif node.func.attr == 'SelectMany':
                 if len(node.args) != 1:
                     raise SyntaxError('SelectMany() call must have exactly one argument')
@@ -88,7 +90,8 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
                     node.args[0] = unwrap_ast(ast.parse(node.args[0].s))
                 if not isinstance(node.args[0], ast.Lambda):
                     raise SyntaxError('SelectMany() call argument must be a lambda')
-                return SelectMany(source=self.visit(node.func.value), selector=self.visit(node.args[0]))
+                return SelectMany(source=self.visit(node.func.value),
+                                  selector=self.visit(node.args[0]))
             elif node.func.attr == 'First':
                 if len(node.args) != 0:
                     raise SyntaxError('First() call must have zero arguments')
@@ -101,7 +104,9 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
                     node.args[0] = unwrap_ast(ast.parse(node.args[0].s))
                 if not isinstance(node.args[1], ast.Lambda):
                     raise SyntaxError('Second Aggregate() call argument must be a lambda')
-                return Aggregate(source=self.visit(node.func.value), seed=self.visit(node.args[0]), func=self.visit(node.args[1]))
+                return Aggregate(source=self.visit(node.func.value),
+                                 seed=self.visit(node.args[0]),
+                                 func=self.visit(node.args[1]))
             elif node.func.attr == 'Count':
                 if len(node.args) != 0:
                     raise SyntaxError('Count() call must have zero arguments')
