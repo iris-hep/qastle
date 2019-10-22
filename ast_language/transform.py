@@ -1,4 +1,4 @@
-from .linq_util import Select, Where
+from .linq_util import Select, SelectMany, Where
 
 import lark
 
@@ -83,6 +83,11 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
 
     def visit_Select(self, node):
         return self.make_composite_node_string('Select',
+                                               self.visit(node.source),
+                                               self.visit(node.selector))
+
+    def visit_SelectMany(self, node):
+        return self.make_composite_node_string('SelectMany',
                                                self.visit(node.source),
                                                self.visit(node.selector))
 
@@ -226,6 +231,16 @@ class TextASTToPythonASTTransformer(lark.Transformer):
                 raise SyntaxError('Select selector must have exactly one argument; found '
                                   + len(fields[1].args.args))
             return Select(source=fields[0], selector=fields[1])
+
+        elif node_type == 'SelectMany':
+            if len(fields) != 2:
+                raise SyntaxError('SelectMany node must have two fields; found ' + len(fields))
+            if not isinstance(fields[1], ast.Lambda):
+                raise SyntaxError('SelectMany selector must be a lambda; found ' + type(fields[1]))
+            if len(fields[1].args.args) != 1:
+                raise SyntaxError('SelectMany selector must have exactly one argument; found '
+                                  + len(fields[1].args.args))
+            return SelectMany(source=fields[0], selector=fields[1])
 
         elif node_type == 'Where':
             if len(fields) != 2:
