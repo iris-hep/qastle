@@ -1,4 +1,5 @@
 from .linq_util import Where, Select, SelectMany, First, Aggregate, Count, Max, Min, Sum
+from .ast_util import wrap_ast, unwrap_ast
 
 import lark
 
@@ -44,6 +45,9 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
 
     def visit_Name(self, node):
         return node.id
+
+    def visit_Constant(self, node):
+        return repr(node.value)
 
     def visit_Num(self, node):
         return repr(node.n)
@@ -174,8 +178,9 @@ class TextASTToPythonASTTransformer(lark.Transformer):
     def record(self, children):
         if (len(children) == 0
            or isinstance(children[0], lark.Token) and children[0].type == 'WHITESPACE'):
-            return ast.Module(body=[])
-        return ast.Module(body=[ast.Expr(value=children[0])])
+            return wrap_ast()
+        else:
+            return wrap_ast(children[0])
 
     def expression(self, children):
         for child in children:
@@ -185,23 +190,10 @@ class TextASTToPythonASTTransformer(lark.Transformer):
 
     def atom(self, children):
         child = children[0]
-        if child.type == 'IDENTIFIER':
-            if child.value in ['True', 'False', 'None'] and sys.version_info[0] > 2:
-                return ast.NameConstant(value=ast.literal_eval(child.value))
-            else:
-                return ast.Name(id=child.value, ctx=ast.Load())
-        elif child.type == 'STRING_LITERAL':
-            return ast.Str(s=ast.literal_eval(child.value))
-        elif child.type == 'NUMERIC_LITERAL':
+        if child.type == 'NUMERIC_LITERAL':
             if child.value[0] == '+':
                 child.value = child.value[1:]
-            number = ast.literal_eval(child.value)
-            if number < 0 and sys.version_info[0] > 2:
-                return ast.UnaryOp(op=ast.USub(), operand=ast.Num(n=-number))
-            else:
-                return ast.Num(n=number)
-        else:
-            raise Exception('Unknown atom child type: ' + str(child.type))
+        return unwrap_ast(ast.parse(child.value))
 
     def composite(self, children):
         fields = []
@@ -290,8 +282,20 @@ class TextASTToPythonASTTransformer(lark.Transformer):
                                                      kwarg=None,
                                                      defaults=[]),
                                   body=fields[1])
-            else:
+            elif sys.version_info[0] == 3 and sys.version_info[1] < 8:
                 return ast.Lambda(args=ast.arguments(args=[ast.arg(arg=name.id, annotation=None)
+                                                           for name in fields[0].elts],
+                                                     vararg=None,
+                                                     kwonlyargs=[],
+                                                     kw_defaults=[],
+                                                     kwarg=None,
+                                                     defaults=[]),
+                                  body=fields[1])
+            else:
+                return ast.Lambda(args=ast.arguments(posonlyargs=[],
+                                                     args=[ast.arg(arg=name.id,
+                                                                   annotation=None,
+                                                                   type_comment=None)
                                                            for name in fields[0].elts],
                                                      vararg=None,
                                                      kwonlyargs=[],

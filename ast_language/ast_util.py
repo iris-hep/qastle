@@ -1,4 +1,5 @@
 import ast
+import sys
 
 
 def unwrap_ast(module_node):
@@ -11,8 +12,12 @@ def unwrap_ast(module_node):
 
 def wrap_ast(node=None):
     if node is None:
-        module_node = ast.Module(body=[])
+        body_list = []
     else:
         expr_node = ast.Expr(value=node)
-        module_node = ast.Module(body=[expr_node])
+        body_list = [expr_node]
+    if sys.version_info[0] < 3 or sys.version_info[0] == 3 and sys.version_info[1] < 8:
+        module_node = ast.Module(body=body_list)
+    else:
+        module_node = ast.Module(body=body_list, type_ignores=[])
     return module_node
