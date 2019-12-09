@@ -102,3 +102,5 @@ becomes
                       (call (attr (attr Event 'Muons') 'phi'))
                       (call (attr (attr Event 'Muons') 'e')))))
 ```
+
+See [examples/annotated_query_example.ipynb]() for a more thorough example.
