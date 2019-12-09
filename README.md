@@ -103,4 +103,4 @@ becomes
                       (call (attr (attr Event 'Muons') 'e')))))
 ```
 
-See [examples/annotated_query_example.ipynb]() for a more thorough example.
+See [this Jupyter notebook](examples/annotated_query_example.ipynb) for a more thorough example.
