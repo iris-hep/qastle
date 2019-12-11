@@ -1,7 +1,7 @@
-# AST language
+# qastle (Query AST Language Expressions)
 
-[![Travis CI badge](https://travis-ci.org/iris-hep/ast-language.svg?branch=master)](https://travis-ci.org/iris-hep/ast-language)
-[![Codecov badge](https://codecov.io/gh/iris-hep/ast-language/branch/master/graph/badge.svg)](https://codecov.io/gh/iris-hep/ast-language)
+[![Travis CI badge](https://travis-ci.org/iris-hep/qastle.svg?branch=master)](https://travis-ci.org/iris-hep/qastle)
+[![Codecov badge](https://codecov.io/gh/iris-hep/qastle/branch/master/graph/badge.svg)](https://codecov.io/gh/iris-hep/qastle)
 
 This document describes a language intended to be used in [ServiceX](https://github.com/ssl-hep/ServiceX) and [func_adl](https://github.com/iris-hep/func_adl) for messages which represent abstract syntax trees (ASTs). The trees specify columnar selections of HEP data.
 

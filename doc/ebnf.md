@@ -1,4 +1,4 @@
-# AST language grammar
+# qastle grammar
 
 ## Introduction
 
