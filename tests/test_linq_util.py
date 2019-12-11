@@ -1,6 +1,6 @@
 from .testing_util import *
 
-from ast_language import *
+from qastle import *
 
 import ast
 

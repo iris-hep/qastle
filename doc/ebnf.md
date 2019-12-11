@@ -2,7 +2,7 @@
 
 ## Introduction
 
-A grammar definition for this AST language can be found below, in [extended Backus-Naur form (EBNF)](https://en.wikipedia.org/wiki/Extended_Backus-Naur_form). In particular, this definition follows [ISO/IEC 14977:1996](https://www.cl.cam.ac.uk/~mgk25/iso-14977.pdf), which is a problematic version of EBNF but the only official standard that I could find. Note that this is only valid for printable ASCII characters; the exact syntax used can be found in [syntax.lark](/ast_language/syntax.lark) (in Lark's variety of EBNF), and it is valid for any character set.
+A grammar definition for this AST language can be found below, in [extended Backus-Naur form (EBNF)](https://en.wikipedia.org/wiki/Extended_Backus-Naur_form). In particular, this definition follows [ISO/IEC 14977:1996](https://www.cl.cam.ac.uk/~mgk25/iso-14977.pdf), which is a problematic version of EBNF but the only official standard that I could find. Note that this is only valid for printable ASCII characters; the exact syntax used can be found in [syntax.lark](/qastle/syntax.lark) (in Lark's variety of EBNF), and it is valid for any character set.
 
 The syntactic primary is a `record`, which is either empty or holds one top-level AST node.
 
