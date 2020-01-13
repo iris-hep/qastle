@@ -83,6 +83,11 @@ def test_attr():
     assert_equivalent_python_text_and_text_ast('a.b', "(attr a 'b')")
 
 
+def test_subscript():
+    assert_equivalent_python_text_and_text_ast('a[0]', "(subscript a 0)")
+    assert_equivalent_python_text_and_text_ast("a['b']", "(subscript a 'b')")
+
+
 def test_call():
     assert_equivalent_python_text_and_text_ast('a()', "(call a)")
     assert_equivalent_python_text_and_text_ast('a(0, 1, 2)', "(call a 0 1 2)")

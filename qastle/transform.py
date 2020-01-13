@@ -72,6 +72,14 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
     def visit_Attribute(self, node):
         return self.make_composite_node_string('attr', self.visit(node.value), repr(node.attr))
 
+    def visit_Subscript(self, node):
+        return self.make_composite_node_string('subscript',
+                                               self.visit(node.value),
+                                               self.visit(node.slice))
+
+    def visit_Index(self, node):
+        return self.visit(node.value)
+
     def visit_Call(self, node):
         return self.make_composite_node_string('call',
                                                self.visit(node.func),
@@ -217,6 +225,11 @@ class TextASTToPythonASTTransformer(lark.Transformer):
             if not isinstance(fields[1], ast.Str):
                 raise SyntaxError('Attribute name must be a string; found ' + str(type(fields[1])))
             return ast.Attribute(value=fields[0], attr=fields[1].s, ctx=ast.Load())
+
+        elif node_type == 'subscript':
+            if len(fields) != 2:
+                raise SyntaxError('Subscript node must have two fields; found ' + str(len(fields)))
+            return ast.Subscript(value=fields[0], slice=ast.Index(value=fields[1]), ctx=ast.Load())
 
         elif node_type == 'call':
             if len(fields) < 1:

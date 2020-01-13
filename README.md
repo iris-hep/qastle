@@ -51,6 +51,7 @@ All defined s-expressions are listed here, though this specification will be exp
   - Lists: `(list <item>*)`
   - Attributes: `(attr <object> <attribute>)`
     - `attribute` must be a string literal
+  - Subscripts: `(subscript <object> <subscript>)`
   - Function calls: `(call <function> <argument>*)`
   - Unary operators: `(<operator> <operand>)`
     - `<operator>` must be `not` (Boolean)
