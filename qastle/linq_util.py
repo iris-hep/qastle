@@ -62,71 +62,38 @@ class Sum(ast.AST):
         self.source = source
 
 
+linq_operator_names = ('Where',
+                       'Select',
+                       'SelectMany',
+                       'First',
+                       'Aggregate',
+                       'Count',
+                       'Max',
+                       'Min',
+                       'Sum')
+
+
 class InsertLINQNodesTransformer(ast.NodeTransformer):
     def visit_Call(self, node):
         if isinstance(node.func, ast.Attribute):
-            if node.func.attr == 'Where':
-                if len(node.args) != 1:
-                    raise SyntaxError('Where() call must have exactly one argument')
-                if isinstance(node.args[0], ast.Str):
-                    node.args[0] = unwrap_ast(ast.parse(node.args[0].s))
-                if not isinstance(node.args[0], ast.Lambda):
-                    raise SyntaxError('Where() call argument must be a lambda')
-                return Where(source=self.visit(node.func.value),
-                             predicate=self.visit(node.args[0]))
-            elif node.func.attr == 'Select':
-                if len(node.args) != 1:
-                    raise SyntaxError('Select() call must have exactly one argument')
-                if isinstance(node.args[0], ast.Str):
-                    node.args[0] = unwrap_ast(ast.parse(node.args[0].s))
-                if not isinstance(node.args[0], ast.Lambda):
-                    raise SyntaxError('Select() call argument must be a lambda')
-                return Select(source=self.visit(node.func.value),
-                              selector=self.visit(node.args[0]))
-            elif node.func.attr == 'SelectMany':
-                if len(node.args) != 1:
-                    raise SyntaxError('SelectMany() call must have exactly one argument')
-                if isinstance(node.args[0], ast.Str):
-                    node.args[0] = unwrap_ast(ast.parse(node.args[0].s))
-                if not isinstance(node.args[0], ast.Lambda):
-                    raise SyntaxError('SelectMany() call argument must be a lambda')
-                return SelectMany(source=self.visit(node.func.value),
-                                  selector=self.visit(node.args[0]))
-            elif node.func.attr == 'First':
-                if len(node.args) != 0:
-                    raise SyntaxError('First() call must have zero arguments')
-                return First(source=self.visit(node.func.value))
-            elif node.func.attr == 'Aggregate':
-                if len(node.args) != 2:
-                    raise SyntaxError('Aggregate() call must have exactly two arguments; found'
-                                      + str(len(node.args)))
-                if isinstance(node.args[1], ast.Str):
-                    node.args[0] = unwrap_ast(ast.parse(node.args[0].s))
-                if not isinstance(node.args[1], ast.Lambda):
-                    raise SyntaxError('Second Aggregate() call argument must be a lambda')
-                return Aggregate(source=self.visit(node.func.value),
-                                 seed=self.visit(node.args[0]),
-                                 func=self.visit(node.args[1]))
-            elif node.func.attr == 'Count':
-                if len(node.args) != 0:
-                    raise SyntaxError('Count() call must have zero arguments')
-                return Count(source=self.visit(node.func.value))
-            elif node.func.attr == 'Max':
-                if len(node.args) != 0:
-                    raise SyntaxError('Max() call must have zero arguments')
-                return Max(source=self.visit(node.func.value))
-            elif node.func.attr == 'Min':
-                if len(node.args) != 0:
-                    raise SyntaxError('Min() call must have zero arguments')
-                return Min(source=self.visit(node.func.value))
-            elif node.func.attr == 'Sum':
-                if len(node.args) != 0:
-                    raise SyntaxError('Sum() call must have zero arguments')
-                return Sum(source=self.visit(node.func.value))
-            else:
+            function_name = node.func.attr
+            if function_name not in linq_operator_names:
                 return self.generic_visit(node)
-        else:
-            return self.generic_visit(node)
+            source = node.func.value
+            args = node.args
+        elif isinstance(node.func, ast.Name):
+            function_name = node.func.id
+            if function_name not in linq_operator_names:
+                return self.generic_visit(node)
+            source = node.args[0]
+            args = node.args[1:]
+        if function_name in ('Where', 'Select', 'SelectMany') and isinstance(args[0], ast.Str):
+            args[0] = unwrap_ast(ast.parse(node.args[0].s))
+        elif function_name == 'Aggregate' and isinstance(args[1], ast.Str):
+            args[1] = unwrap_ast(ast.parse(args[1].s))
+        source = self.visit(source)
+        args = [self.visit(arg) for arg in args]
+        return globals()[function_name](source, *args)
 
 
 def insert_linq_nodes(python_ast):
