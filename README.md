@@ -105,3 +105,8 @@ becomes
 ```
 
 See [this Jupyter notebook](examples/annotated_query_example.ipynb) for a more thorough example.
+
+
+## Nota bene
+
+The mapping between Python and qastle expressions is not strictly one-to-one. There are some Python nodes with more specific functionality than needed in the textual AST representation. For example, Python all `tuple`s are converted to `(list)`s by qastle.
