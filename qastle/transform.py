@@ -69,6 +69,11 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
     def visit_Tuple(self, node):
         return self.visit_List(node)
 
+    def visit_Dict(self, node):
+        return self.make_composite_node_string('dict',
+                                               self.visit(ast.List(elts=node.keys)),
+                                               self.visit(ast.List(elts=node.values)))
+
     def visit_Attribute(self, node):
         return self.make_composite_node_string('attr', self.visit(node.value), repr(node.attr))
 
@@ -218,6 +223,16 @@ class TextASTToPythonASTTransformer(lark.Transformer):
 
         if node_type == 'list':
             return ast.List(elts=fields, ctx=ast.Load())
+
+        if node_type == 'dict':
+            if len(fields) != 2:
+                raise SyntaxError('Dictionary node must have two fields; found '
+                                  + str(len(fields)))
+            for field_index in range(2):
+                if not isinstance(fields[field_index], ast.List):
+                    raise SyntaxError('Dictionary fields must be lists; found '
+                                      + str(type(fields[field_index])))
+            return ast.Dict(keys=fields[0].elts, values=fields[1].elts)
 
         elif node_type == 'attr':
             if len(fields) != 2:
