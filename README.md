@@ -49,6 +49,8 @@ All defined s-expressions are listed here, though this specification will be exp
 
 - Composite s-expressions:
   - Lists: `(list <item>*)`
+  - Dictionary: `(dict <keys> <values>)`
+    - `keys` and `values` must each be a `list`
   - Attributes: `(attr <object> <attribute>)`
     - `attribute` must be a string literal
   - Subscripts: `(subscript <object> <subscript>)`
