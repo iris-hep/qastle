@@ -79,6 +79,11 @@ def test_tuple():
     assert python_source_to_text_ast('(0, 1, 2)') == '(list 0 1 2)'
 
 
+def test_dict():
+    assert_equivalent_python_text_and_text_ast('{}', '(dict (list) (list))')
+    assert_equivalent_python_text_and_text_ast("{0: 0, 1: 'a', 'b': 2, 'abc': 'abc'}", "(dict (list 0 1 'b' 'abc') (list 0 'a' 2 'abc'))")
+
+
 def test_attr():
     assert_equivalent_python_text_and_text_ast('a.b', "(attr a 'b')")
 
