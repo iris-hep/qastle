@@ -7,7 +7,9 @@ import ast
 import sys
 
 
-UnaryOp_ops = {'not': ast.Not}
+UnaryOp_ops = {'not': ast.Not,
+               '+':   ast.UAdd,
+               '-':   ast.USub}
 
 BinOp_ops = {'+': ast.Add,
              '-': ast.Sub,
@@ -27,6 +29,8 @@ Compare_ops = {'==': ast.Eq,
 op_strings = {value: key
               for dictionary in [UnaryOp_ops, BinOp_ops, BoolOp_ops, Compare_ops]
               for key, value in dictionary.items()}
+
+flexible_ops = ('+', '-')
 
 
 class PythonASTToTextASTTransformer(ast.NodeVisitor):
@@ -91,16 +95,14 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
                                                *[self.visit(arg) for arg in node.args])
 
     def visit_UnaryOp(self, node):
-        if isinstance(node.op, ast.UAdd):
-            return self.visit(node.operand)
-        elif isinstance(node.op, ast.USub):
-            if isinstance(node.operand, ast.Num):
+        if (hasattr(ast, 'Constant') and isinstance(node.operand, ast.Constant)
+           or isinstance(node.operand, ast.Num)):
+            if isinstance(node.op, ast.UAdd):
+                return self.visit(node.operand)
+            elif isinstance(node.op, ast.USub):
                 return self.visit(ast.Num(n=-node.operand.n))
-            else:
-                raise SyntaxError('Unsupported unary - operand type: ' + str(type(node.operand)))
-        else:
-            return self.make_composite_node_string(op_strings[type(node.op)],
-                                                   self.visit(node.operand))
+        return self.make_composite_node_string(op_strings[type(node.op)],
+                                               self.visit(node.operand))
 
     def visit_BinOp(self, node):
         return self.make_composite_node_string(op_strings[type(node.op)],
@@ -262,16 +264,16 @@ class TextASTToPythonASTTransformer(lark.Transformer):
         elif node_type in UnaryOp_ops:
             if len(fields) == 1:
                 return ast.UnaryOp(op=UnaryOp_ops[node_type](), operand=fields[0])
-            else:
-                raise SyntaxError(UnaryOp_ops[node_type]
+            elif node_type not in flexible_ops:
+                raise SyntaxError(UnaryOp_ops[node_type].__name__
                                   + ' operator only supported for one operand; found '
                                   + str(len(fields)))
 
-        elif node_type in BinOp_ops:
+        if node_type in BinOp_ops:
             if len(fields) == 2:
                 return ast.BinOp(left=fields[0], op=BinOp_ops[node_type](), right=fields[1])
             else:
-                raise SyntaxError(BinOp_ops[node_type]
+                raise SyntaxError(BinOp_ops[node_type].__name__
                                   + ' operator only supported for two operands; found '
                                   + str(len(fields)))
 
@@ -279,7 +281,7 @@ class TextASTToPythonASTTransformer(lark.Transformer):
             if len(fields) == 2:
                 return ast.BoolOp(op=BoolOp_ops[node_type](), values=fields)
             else:
-                raise SyntaxError(BoolOp_ops[node_type]
+                raise SyntaxError(BoolOp_ops[node_type].__name__
                                   + ' operator only supported for two operands; found '
                                   + str(len(fields)))
 
@@ -289,7 +291,7 @@ class TextASTToPythonASTTransformer(lark.Transformer):
                                    ops=[Compare_ops[node_type]()],
                                    comparators=[fields[1]])
             else:
-                raise SyntaxError(Compare_ops[node_type]
+                raise SyntaxError(Compare_ops[node_type].__name__
                                   + ' operator only supported for two operands; found '
                                   + str(len(fields)))
 
