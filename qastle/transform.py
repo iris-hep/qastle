@@ -95,13 +95,14 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
                                                *[self.visit(arg) for arg in node.args])
 
     def visit_UnaryOp(self, node):
-        if hasattr(ast, 'Constant') and isinstance(node.operand, ast.Constant) or isinstance(node.operand, ast.Num):
+        if (hasattr(ast, 'Constant') and isinstance(node.operand, ast.Constant)
+           or isinstance(node.operand, ast.Num)):
             if isinstance(node.op, ast.UAdd):
                 return self.visit(node.operand)
             elif isinstance(node.op, ast.USub):
                 return self.visit(ast.Num(n=-node.operand.n))
         return self.make_composite_node_string(op_strings[type(node.op)],
-                                                   self.visit(node.operand))
+                                               self.visit(node.operand))
 
     def visit_BinOp(self, node):
         return self.make_composite_node_string(op_strings[type(node.op)],
