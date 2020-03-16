@@ -100,7 +100,7 @@ def test_call():
 
 
 def test_if():
-    assert_equivalent_python_text_and_text_ast('a if b else c', "(if a b c)")
+    assert_equivalent_python_text_and_text_ast('a if b else c', "(if b a c)")
 
 
 def test_unary_operators():
