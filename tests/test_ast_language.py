@@ -99,6 +99,10 @@ def test_call():
     assert_equivalent_python_text_and_text_ast('a(0, 1, 2)', "(call a 0 1 2)")
 
 
+def test_if():
+    assert_equivalent_python_text_and_text_ast('a if b else c', "(if a b c)")
+
+
 def test_unary_operators():
     assert python_source_to_text_ast('+1') == '1'
     assert_ast_nodes_are_equal(text_ast_to_python_ast('+1'), ast.parse('1'))
