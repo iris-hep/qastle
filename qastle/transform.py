@@ -94,6 +94,12 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
                                                self.visit(node.func),
                                                *[self.visit(arg) for arg in node.args])
 
+    def visit_IfExp(self, node):
+        return self.make_composite_node_string('if',
+                                               self.visit(node.test),
+                                               self.visit(node.body),
+                                               self.visit(node.orelse))
+
     def visit_UnaryOp(self, node):
         if (hasattr(ast, 'Constant') and isinstance(node.operand, ast.Constant)
            or isinstance(node.operand, ast.Num)):
@@ -260,6 +266,12 @@ class TextASTToPythonASTTransformer(lark.Transformer):
                                 kwargs=None)
             else:
                 return ast.Call(func=fields[0], args=fields[1:], keywords=[])
+
+        elif node_type == 'if':
+            if len(fields) != 3:
+                raise SyntaxError('If node must have three fields; found '
+                                  + str(len(fields)))
+            return ast.IfExp(test=fields[0], body=fields[1], orelse=fields[2])
 
         elif node_type in UnaryOp_ops:
             if len(fields) == 1:
