@@ -55,6 +55,7 @@ All defined s-expressions are listed here, though this specification will be exp
     - `attribute` must be a string literal
   - Subscripts: `(subscript <object> <subscript>)`
   - Function calls: `(call <function> <argument>*)`
+  - Conditionals: `(if <condition> <then> <else>)`
   - Unary operators: `(<operator> <operand>)`
     - `<operator>` must be `not` (Boolean)
   - Binary operators: `(<operator> <operand> <operand>)`
