@@ -117,6 +117,9 @@ def test_binary_operators():
     assert_equivalent_python_text_and_text_ast('1 - 2', "(- 1 2)")
     assert_equivalent_python_text_and_text_ast('1 * 2', "(* 1 2)")
     assert_equivalent_python_text_and_text_ast('1 / 2', "(/ 1 2)")
+    assert_equivalent_python_text_and_text_ast('1 & 2', "(& 1 2)")
+    assert_equivalent_python_text_and_text_ast('1 | 2', "(| 1 2)")
+    assert_equivalent_python_text_and_text_ast('1 ^ 2', "(^ 1 2)")
 
 
 def test_boolean_operators():
