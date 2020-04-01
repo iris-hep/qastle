@@ -18,7 +18,9 @@ BinOp_ops = {'+': ast.Add,
              '/': ast.Div,
              '&': ast.BitAnd,
              '|': ast.BitOr,
-             '^': ast.BitXor}
+             '^': ast.BitXor,
+             '<<': ast.LShift,
+             '>>': ast.RShift}
 
 BoolOp_ops = {'and': ast.And,
               'or':  ast.Or}
