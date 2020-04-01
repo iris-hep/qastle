@@ -7,14 +7,20 @@ import ast
 import sys
 
 
-UnaryOp_ops = {'not': ast.Not,
-               '+':   ast.UAdd,
-               '-':   ast.USub}
+UnaryOp_ops = {'+':   ast.UAdd,
+               '-':   ast.USub,
+               'not': ast.Not,
+               '~':   ast.Invert}
 
 BinOp_ops = {'+': ast.Add,
              '-': ast.Sub,
              '*': ast.Mult,
-             '/': ast.Div}
+             '/': ast.Div,
+             '&': ast.BitAnd,
+             '|': ast.BitOr,
+             '^': ast.BitXor,
+             '<<': ast.LShift,
+             '>>': ast.RShift}
 
 BoolOp_ops = {'and': ast.And,
               'or':  ast.Or}

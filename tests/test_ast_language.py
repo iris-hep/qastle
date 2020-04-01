@@ -90,55 +90,61 @@ def test_attr():
 
 
 def test_subscript():
-    assert_equivalent_python_text_and_text_ast('a[0]', "(subscript a 0)")
+    assert_equivalent_python_text_and_text_ast('a[0]', '(subscript a 0)')
     assert_equivalent_python_text_and_text_ast("a['b']", "(subscript a 'b')")
 
 
 def test_call():
-    assert_equivalent_python_text_and_text_ast('a()', "(call a)")
-    assert_equivalent_python_text_and_text_ast('a(0, 1, 2)', "(call a 0 1 2)")
+    assert_equivalent_python_text_and_text_ast('a()', '(call a)')
+    assert_equivalent_python_text_and_text_ast('a(0, 1, 2)', '(call a 0 1 2)')
 
 
 def test_if():
-    assert_equivalent_python_text_and_text_ast('a if b else c', "(if b a c)")
+    assert_equivalent_python_text_and_text_ast('a if b else c', '(if b a c)')
 
 
 def test_unary_operators():
     assert python_source_to_text_ast('+1') == '1'
     assert_ast_nodes_are_equal(text_ast_to_python_ast('+1'), ast.parse('1'))
-    assert_equivalent_python_text_and_text_ast('+a', "(+ a)")
-    assert_equivalent_python_text_and_text_ast('-1', "-1")
-    assert_equivalent_python_text_and_text_ast('-a', "(- a)")
-    assert_equivalent_python_text_and_text_ast('not True', "(not True)")
+    assert_equivalent_python_text_and_text_ast('+a', '(+ a)')
+    assert_equivalent_python_text_and_text_ast('-1', '-1')
+    assert_equivalent_python_text_and_text_ast('-a', '(- a)')
+    assert_equivalent_python_text_and_text_ast('not True', '(not True)')
+    assert_equivalent_python_text_and_text_ast('~1', '(~ 1)')
 
 
 def test_binary_operators():
-    assert_equivalent_python_text_and_text_ast('1 + 2', "(+ 1 2)")
-    assert_equivalent_python_text_and_text_ast('1 - 2', "(- 1 2)")
-    assert_equivalent_python_text_and_text_ast('1 * 2', "(* 1 2)")
-    assert_equivalent_python_text_and_text_ast('1 / 2', "(/ 1 2)")
+    assert_equivalent_python_text_and_text_ast('1 + 2', '(+ 1 2)')
+    assert_equivalent_python_text_and_text_ast('1 - 2', '(- 1 2)')
+    assert_equivalent_python_text_and_text_ast('1 * 2', '(* 1 2)')
+    assert_equivalent_python_text_and_text_ast('1 / 2', '(/ 1 2)')
+    assert_equivalent_python_text_and_text_ast('1 & 2', '(& 1 2)')
+    assert_equivalent_python_text_and_text_ast('1 | 2', '(| 1 2)')
+    assert_equivalent_python_text_and_text_ast('1 ^ 2', '(^ 1 2)')
+    assert_equivalent_python_text_and_text_ast('1 << 2', '(<< 1 2)')
+    assert_equivalent_python_text_and_text_ast('1 >> 2', '(>> 1 2)')
 
 
 def test_boolean_operators():
-    assert_equivalent_python_text_and_text_ast('True and False', "(and True False)")
-    assert_equivalent_python_text_and_text_ast('True or False', "(or True False)")
+    assert_equivalent_python_text_and_text_ast('True and False', '(and True False)')
+    assert_equivalent_python_text_and_text_ast('True or False', '(or True False)')
     assert python_source_to_text_ast('a and b and c') == '(and (and a b) c)'
 
 
 def test_comparison_operators():
-    assert_equivalent_python_text_and_text_ast('1 == 2', "(== 1 2)")
-    assert_equivalent_python_text_and_text_ast('1 != 2', "(!= 1 2)")
-    assert_equivalent_python_text_and_text_ast('1 < 2', "(< 1 2)")
-    assert_equivalent_python_text_and_text_ast('1 <= 2', "(<= 1 2)")
-    assert_equivalent_python_text_and_text_ast('1 > 2', "(> 1 2)")
-    assert_equivalent_python_text_and_text_ast('1 >= 2', "(>= 1 2)")
+    assert_equivalent_python_text_and_text_ast('1 == 2', '(== 1 2)')
+    assert_equivalent_python_text_and_text_ast('1 != 2', '(!= 1 2)')
+    assert_equivalent_python_text_and_text_ast('1 < 2', '(< 1 2)')
+    assert_equivalent_python_text_and_text_ast('1 <= 2', '(<= 1 2)')
+    assert_equivalent_python_text_and_text_ast('1 > 2', '(> 1 2)')
+    assert_equivalent_python_text_and_text_ast('1 >= 2', '(>= 1 2)')
     assert python_source_to_text_ast('1 < 2 < 3') == '(and (< 1 2) (< 2 3))'
     assert python_source_to_text_ast('1 < 2 < 3 < 4') == '(and (and (< 1 2) (< 2 3)) (< 3 4))'
 
 
 def test_lambda():
-    assert_equivalent_python_text_and_text_ast('lambda: 0', "(lambda (list) 0)")
-    assert_equivalent_python_text_and_text_ast('lambda x, y, z: x', "(lambda (list x y z) x)")
+    assert_equivalent_python_text_and_text_ast('lambda: 0', '(lambda (list) 0)')
+    assert_equivalent_python_text_and_text_ast('lambda x, y, z: x', '(lambda (list x y z) x)')
 
 
 def test_Where():
