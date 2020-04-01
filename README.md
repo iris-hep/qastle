@@ -59,7 +59,7 @@ All defined s-expressions are listed here, though this specification will be exp
   - Unary operators: `(<operator> <operand>)`
     - `<operator>` must be `not` or `~`
   - Binary operators: `(<operator> <operand> <operand>)`
-      - `<operator>` must be one of `+`, `-`, `*`, `/`, `and`, `or`, `&`, `|`, `^`, `<<`, `>>`, `==`, `!=`, `<`, `<=`, `>`, `>=`
+      - `<operator>` must be one of `+`, `-`, `*`, `/`, `%`, `**`, `//`, `and`, `or`, `&`, `|`, `^`, `<<`, `>>`, `==`, `!=`, `<`, `<=`, `>`, `>=`
   - Lambdas: `(lambda <arguments> <expression>)`
     - `arguments` must be a `list` containing only variable names
   - Where: `(Where <source> <predicate>)`
