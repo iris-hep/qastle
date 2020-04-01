@@ -64,7 +64,10 @@ composite = "(", [whitespace],
 
 node type = letter, {letter} | operator symbol ;
 
-operator symbol =   "*" | "+" | "-" | "/"
+operator symbol =   "+" | "-"
+                  | "*",  "*" | "*" | "/", "/" | "/" | "%"
+                  | "&" | "|" | "^" | "~"
+                  | "<", "<" | ">", ">"
                   | "=", "=" | "!", "="
                   | "<", "=" | "<"
                   | ">", "=" | ">" ;
