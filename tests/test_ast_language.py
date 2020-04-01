@@ -110,6 +110,7 @@ def test_unary_operators():
     assert_equivalent_python_text_and_text_ast('-1', '-1')
     assert_equivalent_python_text_and_text_ast('-a', '(- a)')
     assert_equivalent_python_text_and_text_ast('not True', '(not True)')
+    assert_equivalent_python_text_and_text_ast('~1', '(~ 1)')
 
 
 def test_binary_operators():
