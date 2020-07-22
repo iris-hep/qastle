@@ -28,7 +28,7 @@ def test_visit_call_name_generic():
 
 
 def test_visit_call_name_linq_operator():
-    initial_ast = ast.parse('Select(the_source, lambda row: row)')
+    initial_ast = ast.parse("Select(the_source, 'lambda row: row')")
     final_ast = insert_linq_nodes(initial_ast)
     expected_ast = wrap_ast(Select(source=unwrap_ast(ast.parse('the_source')),
                                    selector=unwrap_ast(ast.parse('lambda row: row'))))
@@ -42,7 +42,7 @@ def test_visit_call_generic():
 
 
 def test_where():
-    initial_ast = ast.parse('the_source.Where(lambda row: True)')
+    initial_ast = ast.parse("the_source.Where('lambda row: True')")
     final_ast = insert_linq_nodes(initial_ast)
     expected_ast = wrap_ast(Where(source=unwrap_ast(ast.parse('the_source')),
                                   predicate=unwrap_ast(ast.parse('lambda row: True'))))
@@ -91,7 +91,7 @@ def test_first_bad():
 
 
 def test_aggregate():
-    initial_ast = ast.parse("the_source.Aggregate(0, lambda total, next: total + next)")
+    initial_ast = ast.parse("the_source.Aggregate(0, 'lambda total, next: total + next')")
     final_ast = insert_linq_nodes(initial_ast)
     expected_ast = wrap_ast(Aggregate(source=unwrap_ast(ast.parse('the_source')),
                                       seed=unwrap_ast(ast.parse('0')),
