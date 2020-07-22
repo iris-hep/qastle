@@ -126,7 +126,7 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
                 raise SyntaxError('Aggregate() call must have exactly two arguments; found'
                                   + str(len(args)))
             if isinstance(args[1], ast.Str):
-                args[0] = unwrap_ast(ast.parse(args[0].s))
+                args[1] = unwrap_ast(ast.parse(args[1].s))
             if not isinstance(args[1], ast.Lambda):
                 raise SyntaxError('Second Aggregate() call argument must be a lambda')
             return Aggregate(source=self.visit(source),
