@@ -35,6 +35,11 @@ def test_visit_call_name_linq_operator():
     assert_ast_nodes_are_equal(final_ast, expected_ast)
 
 
+def test_visit_call_name_linq_operator_no_source():
+    with pytest.raises(SyntaxError):
+        insert_linq_nodes(ast.parse("First()"))
+
+
 def test_visit_call_generic():
     initial_ast = ast.parse('None()')
     final_ast = insert_linq_nodes(initial_ast)
