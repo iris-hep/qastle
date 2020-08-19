@@ -71,16 +71,19 @@ def test_numeric_literals():
 
 def test_list():
     assert_equivalent_python_text_and_text_ast('[]', '(list)')
+    assert_equivalent_python_text_and_text_ast('[0]', '(list 0)')
     assert_equivalent_python_text_and_text_ast('[0, 1, 2]', '(list 0 1 2)')
 
 
 def test_tuple():
     assert python_source_to_text_ast('()') == '(list)'
+    assert python_source_to_text_ast('(0,)') == '(list 0)'
     assert python_source_to_text_ast('(0, 1, 2)') == '(list 0 1 2)'
 
 
 def test_dict():
     assert_equivalent_python_text_and_text_ast('{}', '(dict (list) (list))')
+    assert_equivalent_python_text_and_text_ast('{0: 0}', '(dict (list 0) (list 0))')
     assert_equivalent_python_text_and_text_ast("{0: 0, 1: 'a', 'b': 2, 'abc': 'abc'}",
                                                "(dict (list 0 1 'b' 'abc') (list 0 'a' 2 'abc'))")
 
