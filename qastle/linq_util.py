@@ -85,6 +85,8 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
             function_name = node.func.id
             if function_name not in linq_operator_names:
                 return self.generic_visit(node)
+            if len(node.args) == 0:
+                raise SyntaxError('LINQ operators must specify a data source to operate on')
             source = node.args[0]
             args = node.args[1:]
         else:
