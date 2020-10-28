@@ -261,7 +261,12 @@ class TextASTToPythonASTTransformer(lark.Transformer):
         elif node_type == 'subscript':
             if len(fields) != 2:
                 raise SyntaxError('Subscript node must have two fields; found ' + str(len(fields)))
-            return ast.Subscript(value=fields[0], slice=ast.Index(value=fields[1]), ctx=ast.Load())
+            if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 9):
+                return ast.Subscript(value=fields[0],
+                                     slice=ast.Index(value=fields[1]),
+                                     ctx=ast.Load())
+            else:
+                return ast.Subscript(value=fields[0], slice=fields[1], ctx=ast.Load())
 
         elif node_type == 'call':
             if len(fields) < 1:
