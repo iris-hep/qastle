@@ -1,4 +1,4 @@
-from .linq_util import Where, Select, SelectMany, First, Aggregate, Count, Max, Min, Sum
+from .linq_util import Where, Select, SelectMany, First, Aggregate, Count, Max, Min, Sum, Zip
 from .ast_util import wrap_ast, unwrap_ast
 
 import lark
@@ -199,6 +199,9 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
 
     def visit_Sum(self, node):
         return self.make_composite_node_string('Sum', self.visit(node.source))
+
+    def visit_Zip(self, node):
+        return self.make_composite_node_string('Zip', self.visit(node.source))
 
     def generic_visit(self, node):
         raise SyntaxError('Unsupported node type: ' + str(type(node)))
@@ -429,6 +432,11 @@ class TextASTToPythonASTTransformer(lark.Transformer):
             if len(fields) != 1:
                 raise SyntaxError('Sum node must have one field; found ' + str(len(fields)))
             return Sum(source=fields[0])
+
+        elif node_type == 'Zip':
+            if len(fields) != 1:
+                raise SyntaxError('Zip node must have one field; found ' + str(len(fields)))
+            return Zip(source=fields[0])
 
         else:
             raise SyntaxError('Unknown composite node type: ' + node_type)

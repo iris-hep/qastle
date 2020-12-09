@@ -62,6 +62,12 @@ class Sum(ast.AST):
         self.source = source
 
 
+class Zip(ast.AST):
+    def __init__(self, source):
+        self._fields = ['source']
+        self.source = source
+
+
 linq_operator_names = ('Where',
                        'Select',
                        'SelectMany',
@@ -70,7 +76,8 @@ linq_operator_names = ('Where',
                        'Count',
                        'Max',
                        'Min',
-                       'Sum')
+                       'Sum',
+                       'Zip')
 
 
 class InsertLINQNodesTransformer(ast.NodeTransformer):
@@ -150,6 +157,10 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
             if len(args) != 0:
                 raise SyntaxError('Sum() call must have zero arguments')
             return Sum(source=self.visit(source))
+        elif function_name == 'Zip':
+            if len(args) != 0:
+                raise SyntaxError('Zip() call must have zero arguments')
+            return Zip(source=self.visit(source))
         else:
             raise NameError('Unhandled LINQ operator: ' + function_name)
 

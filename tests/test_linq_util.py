@@ -69,6 +69,14 @@ def test_where_bad():
         insert_linq_nodes(ast.parse('the_source.Where(None)'))
 
 
+def test_select():
+    initial_ast = ast.parse("the_source.Select('lambda row: row')")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(Select(source=unwrap_ast(ast.parse('the_source')),
+                                   selector=unwrap_ast(ast.parse('lambda row: row'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
 def test_select_composite():
     initial_ast = ast.parse("the_source.First().Select('lambda row: row')")
     final_ast = insert_linq_nodes(initial_ast)
@@ -193,13 +201,6 @@ def test_max_bad():
         insert_linq_nodes(ast.parse('the_source.Max(None)'))
 
 
-def test_min_composite():
-    initial_ast = ast.parse("the_source.First().Min()")
-    final_ast = insert_linq_nodes(initial_ast)
-    expected_ast = wrap_ast(Min(source=First(source=unwrap_ast(ast.parse('the_source')))))
-    assert_ast_nodes_are_equal(final_ast, expected_ast)
-
-
 def test_min():
     initial_ast = ast.parse("the_source.Min()")
     final_ast = insert_linq_nodes(initial_ast)
@@ -207,16 +208,16 @@ def test_min():
     assert_ast_nodes_are_equal(final_ast, expected_ast)
 
 
+def test_min_composite():
+    initial_ast = ast.parse("the_source.First().Min()")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(Min(source=First(source=unwrap_ast(ast.parse('the_source')))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
 def test_min_bad():
     with pytest.raises(SyntaxError):
         insert_linq_nodes(ast.parse('the_source.Min(None)'))
-
-
-def test_sum_composite():
-    initial_ast = ast.parse("the_source.First().Sum()")
-    final_ast = insert_linq_nodes(initial_ast)
-    expected_ast = wrap_ast(Sum(source=First(source=unwrap_ast(ast.parse('the_source')))))
-    assert_ast_nodes_are_equal(final_ast, expected_ast)
 
 
 def test_sum():
@@ -226,6 +227,32 @@ def test_sum():
     assert_ast_nodes_are_equal(final_ast, expected_ast)
 
 
+def test_sum_composite():
+    initial_ast = ast.parse("the_source.First().Sum()")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(Sum(source=First(source=unwrap_ast(ast.parse('the_source')))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
 def test_sum_bad():
     with pytest.raises(SyntaxError):
         insert_linq_nodes(ast.parse('the_source.Sum(None)'))
+
+
+def test_zip():
+    initial_ast = ast.parse("the_source.Zip()")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(Zip(source=unwrap_ast(ast.parse('the_source'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_zip_composite():
+    initial_ast = ast.parse("the_source.First().Zip()")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(Zip(source=First(source=unwrap_ast(ast.parse('the_source')))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_zip_bad():
+    with pytest.raises(SyntaxError):
+        insert_linq_nodes(ast.parse('the_source.Zip(None)'))

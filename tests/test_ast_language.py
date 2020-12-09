@@ -211,3 +211,9 @@ def test_Sum():
     first_node = Sum(source=unwrap_ast(ast.parse('data_source')))
     assert_equivalent_python_ast_and_text_ast(wrap_ast(first_node),
                                               '(Sum data_source)')
+
+
+def test_Zip():
+    first_node = Zip(source=unwrap_ast(ast.parse('data_source')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(first_node),
+                                              '(Zip data_source)')

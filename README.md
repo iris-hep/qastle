@@ -75,6 +75,7 @@ All defined s-expressions are listed here, though this specification will be exp
   - Max: `(Max <source>)`
   - Min: `(Min <source>)`
   - Sum: `(Sum <source>)`
+  - Zip: `(Zip <source>)`
 
 
 ## Example
