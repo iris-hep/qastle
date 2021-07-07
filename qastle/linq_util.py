@@ -82,6 +82,13 @@ class CrossJoin(ast.AST):
         self.second = second
 
 
+class Choose(ast.AST):
+    def __init__(self, source, n):
+        self._fields = ['source', 'n']
+        self.source = source
+        self.n = n
+
+
 linq_operator_names = ('Where',
                        'Select',
                        'SelectMany',
@@ -93,7 +100,8 @@ linq_operator_names = ('Where',
                        'Sum',
                        'Zip',
                        'OrderBy',
-                       'CrossJoin')
+                       'CrossJoin',
+                       'Choose')
 
 
 class InsertLINQNodesTransformer(ast.NodeTransformer):
@@ -191,6 +199,10 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
                 raise SyntaxError('CrossJoin() call must have exactly one argument')
             return CrossJoin(first=self.visit(source),
                              second=self.visit(args[0]))
+        elif function_name == 'Choose':
+            if len(args) != 1:
+                raise SyntaxError('Choose() call must have exactly one argument')
+            return Choose(source=self.visit(source), n=self.visit(args[0]))
         else:
             raise NameError('Unhandled LINQ operator: ' + function_name)
 

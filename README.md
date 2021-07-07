@@ -79,6 +79,8 @@ All defined s-expressions are listed here, though this specification will be exp
   - OrderBy: `(OrderBy <source> <key_selector>)`
     - `key_selector` must be a `lambda` with one argument
   - CrossJoin: `(CrossJoin <first> <second>)`
+  - Choose: `(Choose <source> <n>)`
+    - `n` must be an integer
 
 
 ## Example
