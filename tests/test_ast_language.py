@@ -217,3 +217,10 @@ def test_Zip():
     first_node = Zip(source=unwrap_ast(ast.parse('data_source')))
     assert_equivalent_python_ast_and_text_ast(wrap_ast(first_node),
                                               '(Zip data_source)')
+
+
+def test_OrderBy():
+    select_node = OrderBy(source=unwrap_ast(ast.parse('data_source')),
+                          key_selector=unwrap_ast(ast.parse('lambda e: e')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(select_node),
+                                              '(OrderBy data_source (lambda (list e) e))')

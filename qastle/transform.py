@@ -1,4 +1,5 @@
-from .linq_util import Where, Select, SelectMany, First, Aggregate, Count, Max, Min, Sum, Zip
+from .linq_util import (Where, Select, SelectMany, First, Aggregate, Count, Max,
+                        Min, Sum, Zip, OrderBy)
 from .ast_util import wrap_ast, unwrap_ast
 
 import lark
@@ -202,6 +203,11 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
 
     def visit_Zip(self, node):
         return self.make_composite_node_string('Zip', self.visit(node.source))
+
+    def visit_OrderBy(self, node):
+        return self.make_composite_node_string('OrderBy',
+                                               self.visit(node.source),
+                                               self.visit(node.key_selector))
 
     def generic_visit(self, node):
         raise SyntaxError('Unsupported node type: ' + str(type(node)))
@@ -437,6 +443,17 @@ class TextASTToPythonASTTransformer(lark.Transformer):
             if len(fields) != 1:
                 raise SyntaxError('Zip node must have one field; found ' + str(len(fields)))
             return Zip(source=fields[0])
+
+        elif node_type == 'OrderBy':
+            if len(fields) != 2:
+                raise SyntaxError('OrderBy node must have two fields; found ' + str(len(fields)))
+            if not isinstance(fields[1], ast.Lambda):
+                raise SyntaxError('OrderBy key selector must be a lambda; found '
+                                  + str(type(fields[1])))
+            if len(fields[1].args.args) != 1:
+                raise SyntaxError('OrderBy key selector must have exactly one argument; found '
+                                  + str(len(fields[1].args.args)))
+            return OrderBy(source=fields[0], key_selector=fields[1])
 
         else:
             raise SyntaxError('Unknown composite node type: ' + node_type)

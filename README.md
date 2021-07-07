@@ -76,6 +76,8 @@ All defined s-expressions are listed here, though this specification will be exp
   - Min: `(Min <source>)`
   - Sum: `(Sum <source>)`
   - Zip: `(Zip <source>)`
+  - OrderBy: `(OrderBy <source> <key_selector>)`
+    - `key_selector` must be a `lambda` with one argument
 
 
 ## Example
