@@ -1,5 +1,5 @@
 from .linq_util import (Where, Select, SelectMany, First, Aggregate, Count, Max,
-                        Min, Sum, Zip, OrderBy, CrossJoin)
+                        Min, Sum, Zip, OrderBy, CrossJoin, Choose)
 from .ast_util import wrap_ast, unwrap_ast
 
 import lark
@@ -213,6 +213,11 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
         return self.make_composite_node_string('CrossJoin',
                                                self.visit(node.first),
                                                self.visit(node.second))
+
+    def visit_Choose(self, node):
+        return self.make_composite_node_string('Choose',
+                                               self.visit(node.source),
+                                               self.visit(node.n))
 
     def generic_visit(self, node):
         raise SyntaxError('Unsupported node type: ' + str(type(node)))
@@ -464,6 +469,11 @@ class TextASTToPythonASTTransformer(lark.Transformer):
             if len(fields) != 2:
                 raise SyntaxError('CrossJoin node must have two fields; found ' + str(len(fields)))
             return CrossJoin(first=fields[0], second=fields[1])
+
+        elif node_type == 'Choose':
+            if len(fields) != 2:
+                raise SyntaxError('Choose node must have two fields; found ' + str(len(fields)))
+            return Choose(source=fields[0], n=fields[1])
 
         else:
             raise SyntaxError('Unknown composite node type: ' + node_type)

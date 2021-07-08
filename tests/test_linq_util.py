@@ -300,3 +300,24 @@ def test_crossjoin_composite():
 def test_crossjoin_bad():
     with pytest.raises(SyntaxError):
         insert_linq_nodes(ast.parse('left.CrossJoin()'))
+
+
+def test_choose():
+    initial_ast = ast.parse("the_source.Choose(2)")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(Choose(source=unwrap_ast(ast.parse('the_source')),
+                                   n=unwrap_ast(ast.parse('2'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_choose_composite():
+    initial_ast = ast.parse("the_source.First().Choose(2)")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(Choose(source=First(source=unwrap_ast(ast.parse('the_source'))),
+                                   n=unwrap_ast(ast.parse('2'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_choose_bad():
+    with pytest.raises(SyntaxError):
+        insert_linq_nodes(ast.parse('the_source.Choose()'))
