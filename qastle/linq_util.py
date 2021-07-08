@@ -75,6 +75,13 @@ class OrderBy(ast.AST):
         self.key_selector = key_selector
 
 
+class CrossJoin(ast.AST):
+    def __init__(self, first, second):
+        self._fields = ['first', 'second']
+        self.first = first
+        self.second = second
+
+
 linq_operator_names = ('Where',
                        'Select',
                        'SelectMany',
@@ -85,7 +92,8 @@ linq_operator_names = ('Where',
                        'Min',
                        'Sum',
                        'Zip',
-                       'OrderBy')
+                       'OrderBy',
+                       'CrossJoin')
 
 
 class InsertLINQNodesTransformer(ast.NodeTransformer):
@@ -178,6 +186,11 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
                 raise SyntaxError('OrderBy() call argument must be a lambda')
             return OrderBy(source=self.visit(source),
                            key_selector=self.visit(args[0]))
+        elif function_name == 'CrossJoin':
+            if len(args) != 1:
+                raise SyntaxError('CrossJoin() call must have exactly one argument')
+            return CrossJoin(first=self.visit(source),
+                             second=self.visit(args[0]))
         else:
             raise NameError('Unhandled LINQ operator: ' + function_name)
 
