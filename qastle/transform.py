@@ -213,6 +213,7 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
         return self.make_composite_node_string('CrossJoin',
                                                self.visit(node.first),
                                                self.visit(node.second))
+
     def visit_Choose(self, node):
         return self.make_composite_node_string('Choose',
                                                self.visit(node.source),
