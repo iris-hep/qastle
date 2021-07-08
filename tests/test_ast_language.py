@@ -224,3 +224,9 @@ def test_OrderBy():
                            key_selector=unwrap_ast(ast.parse('lambda e: e')))
     assert_equivalent_python_ast_and_text_ast(wrap_ast(orderby_node),
                                               '(OrderBy data_source (lambda (list e) e))')
+
+
+def test_CrossJoin():
+    crossjoin_node = CrossJoin(first=unwrap_ast(ast.parse('left')),
+                               second=unwrap_ast(ast.parse('right')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(crossjoin_node), '(CrossJoin left right)')
