@@ -256,3 +256,26 @@ def test_zip_composite():
 def test_zip_bad():
     with pytest.raises(SyntaxError):
         insert_linq_nodes(ast.parse('the_source.Zip(None)'))
+
+
+def test_orderby():
+    initial_ast = ast.parse("the_source.OrderBy('lambda row: row')")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(OrderBy(source=unwrap_ast(ast.parse('the_source')),
+                                    key_selector=unwrap_ast(ast.parse('lambda row: row'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_orderby_composite():
+    initial_ast = ast.parse("the_source.First().OrderBy('lambda row: row')")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(OrderBy(source=First(source=unwrap_ast(ast.parse('the_source'))),
+                                    key_selector=unwrap_ast(ast.parse('lambda row: row'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_orderby_bad():
+    with pytest.raises(SyntaxError):
+        insert_linq_nodes(ast.parse('the_source.OrderBy()'))
+    with pytest.raises(SyntaxError):
+        insert_linq_nodes(ast.parse('the_source.OrderBy(None)'))

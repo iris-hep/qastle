@@ -68,6 +68,13 @@ class Zip(ast.AST):
         self.source = source
 
 
+class OrderBy(ast.AST):
+    def __init__(self, source, key_selector):
+        self._fields = ['source', 'key_selector']
+        self.source = source
+        self.key_selector = key_selector
+
+
 linq_operator_names = ('Where',
                        'Select',
                        'SelectMany',
@@ -77,7 +84,8 @@ linq_operator_names = ('Where',
                        'Max',
                        'Min',
                        'Sum',
-                       'Zip')
+                       'Zip',
+                       'OrderBy')
 
 
 class InsertLINQNodesTransformer(ast.NodeTransformer):
@@ -161,6 +169,15 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
             if len(args) != 0:
                 raise SyntaxError('Zip() call must have zero arguments')
             return Zip(source=self.visit(source))
+        elif function_name == 'OrderBy':
+            if len(args) != 1:
+                raise SyntaxError('OrderBy() call must have exactly one argument')
+            if isinstance(args[0], ast.Str):
+                args[0] = unwrap_ast(ast.parse(args[0].s))
+            if not isinstance(args[0], ast.Lambda):
+                raise SyntaxError('OrderBy() call argument must be a lambda')
+            return OrderBy(source=self.visit(source),
+                           key_selector=self.visit(args[0]))
         else:
             raise NameError('Unhandled LINQ operator: ' + function_name)
 
