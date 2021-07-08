@@ -233,7 +233,7 @@ def test_CrossJoin():
 
 
 def test_Choose():
-    first_node = Choose(source=unwrap_ast(ast.parse('data_source')),
-                        n=unwrap_ast(ast.parse('2')))
-    assert_equivalent_python_ast_and_text_ast(wrap_ast(first_node),
+    choose_node = Choose(source=unwrap_ast(ast.parse('data_source')),
+                         n=unwrap_ast(ast.parse('2')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(choose_node),
                                               '(Choose data_source 2)')
