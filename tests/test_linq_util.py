@@ -281,27 +281,6 @@ def test_orderby_bad():
         insert_linq_nodes(ast.parse('the_source.OrderBy(None)'))
 
 
-def test_crossjoin():
-    initial_ast = ast.parse("left.CrossJoin(right)")
-    final_ast = insert_linq_nodes(initial_ast)
-    expected_ast = wrap_ast(CrossJoin(first=unwrap_ast(ast.parse('left')),
-                                      second=unwrap_ast(ast.parse('right'))))
-    assert_ast_nodes_are_equal(final_ast, expected_ast)
-
-
-def test_crossjoin_composite():
-    initial_ast = ast.parse("left.First().CrossJoin(right)")
-    final_ast = insert_linq_nodes(initial_ast)
-    expected_ast = wrap_ast(CrossJoin(first=First(source=unwrap_ast(ast.parse('left'))),
-                                      second=unwrap_ast(ast.parse('right'))))
-    assert_ast_nodes_are_equal(final_ast, expected_ast)
-
-
-def test_crossjoin_bad():
-    with pytest.raises(SyntaxError):
-        insert_linq_nodes(ast.parse('left.CrossJoin()'))
-
-
 def test_choose():
     initial_ast = ast.parse("the_source.Choose(2)")
     final_ast = insert_linq_nodes(initial_ast)

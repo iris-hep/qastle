@@ -1,5 +1,5 @@
 from .linq_util import (Where, Select, SelectMany, First, Aggregate, Count, Max,
-                        Min, Sum, Zip, OrderBy, CrossJoin, Choose)
+                        Min, Sum, Zip, OrderBy, Choose)
 from .ast_util import wrap_ast, unwrap_ast
 
 import lark
@@ -208,11 +208,6 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
         return self.make_composite_node_string('OrderBy',
                                                self.visit(node.source),
                                                self.visit(node.key_selector))
-
-    def visit_CrossJoin(self, node):
-        return self.make_composite_node_string('CrossJoin',
-                                               self.visit(node.first),
-                                               self.visit(node.second))
 
     def visit_Choose(self, node):
         return self.make_composite_node_string('Choose',
@@ -464,11 +459,6 @@ class TextASTToPythonASTTransformer(lark.Transformer):
                 raise SyntaxError('OrderBy key selector must have exactly one argument; found '
                                   + str(len(fields[1].args.args)))
             return OrderBy(source=fields[0], key_selector=fields[1])
-
-        elif node_type == 'CrossJoin':
-            if len(fields) != 2:
-                raise SyntaxError('CrossJoin node must have two fields; found ' + str(len(fields)))
-            return CrossJoin(first=fields[0], second=fields[1])
 
         elif node_type == 'Choose':
             if len(fields) != 2:

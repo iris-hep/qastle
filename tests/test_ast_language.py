@@ -226,12 +226,6 @@ def test_OrderBy():
                                               '(OrderBy data_source (lambda (list e) e))')
 
 
-def test_CrossJoin():
-    crossjoin_node = CrossJoin(first=unwrap_ast(ast.parse('left')),
-                               second=unwrap_ast(ast.parse('right')))
-    assert_equivalent_python_ast_and_text_ast(wrap_ast(crossjoin_node), '(CrossJoin left right)')
-
-
 def test_Choose():
     choose_node = Choose(source=unwrap_ast(ast.parse('data_source')),
                          n=unwrap_ast(ast.parse('2')))
