@@ -4,82 +4,51 @@ import ast
 
 
 class Where(ast.AST):
-    def __init__(self, source, predicate):
-        self._fields = ['source', 'predicate']
-        self.source = source
-        self.predicate = predicate
+    _fields = ['source', 'predicate']
 
 
 class Select(ast.AST):
-    def __init__(self, source, selector):
-        self._fields = ['source', 'selector']
-        self.source = source
-        self.selector = selector
+    _fields = ['source', 'selector']
 
 
 class SelectMany(ast.AST):
-    def __init__(self, source, selector):
-        self._fields = ['source', 'selector']
-        self.source = source
-        self.selector = selector
+    _fields = ['source', 'selector']
 
 
 class First(ast.AST):
-    def __init__(self, source):
-        self._fields = ['source']
-        self.source = source
+    _fields = ['source']
 
 
 class Aggregate(ast.AST):
-    def __init__(self, source, seed, func):
-        self._fields = ['source', 'seed', 'func']
-        self.source = source
-        self.seed = seed
-        self.func = func
+    _fields = ['source', 'seed', 'func']
 
 
 class Count(ast.AST):
-    def __init__(self, source):
-        self._fields = ['source']
-        self.source = source
+    _fields = ['source']
 
 
 class Max(ast.AST):
-    def __init__(self, source):
-        self._fields = ['source']
-        self.source = source
+    _fields = ['source']
 
 
 class Min(ast.AST):
-    def __init__(self, source):
-        self._fields = ['source']
-        self.source = source
+    _fields = ['source']
 
 
 class Sum(ast.AST):
-    def __init__(self, source):
-        self._fields = ['source']
-        self.source = source
+    _fields = ['source']
 
 
 class Zip(ast.AST):
-    def __init__(self, source):
-        self._fields = ['source']
-        self.source = source
+    _fields = ['source']
 
 
 class OrderBy(ast.AST):
-    def __init__(self, source, key_selector):
-        self._fields = ['source', 'key_selector']
-        self.source = source
-        self.key_selector = key_selector
+    _fields = ['source', 'key_selector']
 
 
 class Choose(ast.AST):
-    def __init__(self, source, n):
-        self._fields = ['source', 'n']
-        self.source = source
-        self.n = n
+    _fields = ['source', 'n']
 
 
 linq_operator_names = ('Where',

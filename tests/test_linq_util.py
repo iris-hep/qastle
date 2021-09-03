@@ -3,6 +3,7 @@ from .testing_util import *
 from qastle import *
 
 import ast
+import copy
 
 import pytest
 
@@ -90,6 +91,21 @@ def test_select_bad():
         insert_linq_nodes(ast.parse('the_source.Select()'))
     with pytest.raises(SyntaxError):
         insert_linq_nodes(ast.parse('the_source.Select(None)'))
+
+
+def test_select_copy():
+    select = Select('src', 'slctr')
+    select_copy = copy.copy(select)
+    assert select_copy.source == select.source and select_copy.selector == select.selector
+
+
+def test_select_deepcopy():
+    select = Select('src', 'slctr')
+    select_copy = copy.deepcopy(select)
+    assert select_copy.source == select.source and select_copy.selector == select.selector
+    select.source = 'src2'
+    select.selector = 'slctr2'
+    assert select_copy.source == 'src' and select_copy.selector == 'slctr'
 
 
 def test_selectmany():
