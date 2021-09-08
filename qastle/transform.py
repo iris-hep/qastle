@@ -1,4 +1,4 @@
-from .linq_util import (Where, Select, SelectMany, First, Last, Aggregate, Count, Max,
+from .linq_util import (Where, Select, SelectMany, First, Last, ElementAt, Aggregate, Count, Max,
                         Min, Sum, Zip, OrderBy, Choose)
 from .ast_util import wrap_ast, unwrap_ast
 
@@ -185,6 +185,11 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
 
     def visit_Last(self, node):
         return self.make_composite_node_string('Last', self.visit(node.source))
+
+    def visit_ElementAt(self, node):
+        return self.make_composite_node_string('ElementAt',
+                                               self.visit(node.source),
+                                               self.visit(node.index))
 
     def visit_Aggregate(self, node):
         return self.make_composite_node_string('Aggregate',
@@ -420,6 +425,11 @@ class TextASTToPythonASTTransformer(lark.Transformer):
             if len(fields) != 1:
                 raise SyntaxError('Last node must have one field; found ' + str(len(fields)))
             return Last(source=fields[0])
+
+        elif node_type == 'ElementAt':
+            if len(fields) != 2:
+                raise SyntaxError('ElementAt node must have two fields; found ' + str(len(fields)))
+            return ElementAt(source=fields[0], index=fields[1])
 
         elif node_type == 'Aggregate':
             if len(fields) != 3:

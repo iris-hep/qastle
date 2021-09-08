@@ -70,6 +70,8 @@ All defined s-expressions are listed here, though this specification will be exp
     - `selector` must be a `lambda` with one argument
   - First: `(First <source>)`
   - Last: `(Last <source>)`
+  - ElementAt: `(ElementAt <source> <index>)`
+    - `index` must be an integer
   - Aggregate: `(Aggregate <source> <seed> <func>)`
     - `func` must be a `lambda` with two arguments
   - Count: `(Count <source>)`

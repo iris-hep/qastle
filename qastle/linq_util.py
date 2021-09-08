@@ -23,6 +23,10 @@ class Last(ast.AST):
     _fields = ['source']
 
 
+class ElementAt(ast.AST):
+    _fields = ['source', 'index']
+
+
 class Aggregate(ast.AST):
     _fields = ['source', 'seed', 'func']
 
@@ -60,6 +64,7 @@ linq_operator_names = ('Where',
                        'SelectMany',
                        'First',
                        'Last',
+                       'ElementAt',
                        'Aggregate',
                        'Count',
                        'Max',
@@ -124,6 +129,10 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
             if len(args) != 0:
                 raise SyntaxError('Last() call must have zero arguments')
             return Last(source=self.visit(source))
+        elif function_name == 'ElementAt':
+            if len(args) != 1:
+                raise SyntaxError('ElementAt() call must have exactly one argument')
+            return ElementAt(source=self.visit(source), index=self.visit(args[0]))
         elif function_name == 'Aggregate':
             if len(args) != 2:
                 raise SyntaxError('Aggregate() call must have exactly two arguments; found'

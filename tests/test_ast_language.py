@@ -180,6 +180,19 @@ def test_First():
                                               '(First data_source)')
 
 
+def test_Last():
+    first_node = Last(source=unwrap_ast(ast.parse('data_source')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(first_node),
+                                              '(Last data_source)')
+
+
+def test_ElementAt():
+    first_node = ElementAt(source=unwrap_ast(ast.parse('data_source')),
+                           index=unwrap_ast(ast.parse('2')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(first_node),
+                                              '(ElementAt data_source 2)')
+
+
 def test_Aggregate():
     aggregate_node = Aggregate(source=unwrap_ast(ast.parse('data_source')),
                                seed=unwrap_ast(ast.parse('0')),
@@ -231,9 +244,3 @@ def test_Choose():
                          n=unwrap_ast(ast.parse('2')))
     assert_equivalent_python_ast_and_text_ast(wrap_ast(choose_node),
                                               '(Choose data_source 2)')
-
-
-def test_Last():
-    first_node = Last(source=unwrap_ast(ast.parse('data_source')))
-    assert_equivalent_python_ast_and_text_ast(wrap_ast(first_node),
-                                              '(Last data_source)')
