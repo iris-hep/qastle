@@ -169,6 +169,27 @@ def test_last_bad():
         insert_linq_nodes(ast.parse('the_source.Last(None)'))
 
 
+def test_elementat():
+    initial_ast = ast.parse("the_source.ElementAt(2)")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(ElementAt(source=unwrap_ast(ast.parse('the_source')),
+                                      index=unwrap_ast(ast.parse('2'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_elementat_composite():
+    initial_ast = ast.parse("the_source.First().ElementAt(2)")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(ElementAt(source=First(source=unwrap_ast(ast.parse('the_source'))),
+                                      index=unwrap_ast(ast.parse('2'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_elementat_bad():
+    with pytest.raises(SyntaxError):
+        insert_linq_nodes(ast.parse('the_source.ElementAt()'))
+
+
 def test_aggregate():
     initial_ast = ast.parse("the_source.Aggregate(0, 'lambda total, next: total + next')")
     final_ast = insert_linq_nodes(initial_ast)
