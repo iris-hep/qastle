@@ -150,6 +150,25 @@ def test_first_bad():
         insert_linq_nodes(ast.parse('the_source.First(None)'))
 
 
+def test_last():
+    initial_ast = ast.parse("the_source.Last()")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(Last(source=unwrap_ast(ast.parse('the_source'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_last_composite():
+    initial_ast = ast.parse("the_source.First().Last()")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(Last(source=First(source=unwrap_ast(ast.parse('the_source')))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_last_bad():
+    with pytest.raises(SyntaxError):
+        insert_linq_nodes(ast.parse('the_source.Last(None)'))
+
+
 def test_aggregate():
     initial_ast = ast.parse("the_source.Aggregate(0, 'lambda total, next: total + next')")
     final_ast = insert_linq_nodes(initial_ast)
@@ -316,22 +335,3 @@ def test_choose_composite():
 def test_choose_bad():
     with pytest.raises(SyntaxError):
         insert_linq_nodes(ast.parse('the_source.Choose()'))
-
-
-def test_last():
-    initial_ast = ast.parse("the_source.Last()")
-    final_ast = insert_linq_nodes(initial_ast)
-    expected_ast = wrap_ast(Last(source=unwrap_ast(ast.parse('the_source'))))
-    assert_ast_nodes_are_equal(final_ast, expected_ast)
-
-
-def test_last_composite():
-    initial_ast = ast.parse("the_source.Last().Last()")
-    final_ast = insert_linq_nodes(initial_ast)
-    expected_ast = wrap_ast(Last(source=Last(source=unwrap_ast(ast.parse('the_source')))))
-    assert_ast_nodes_are_equal(final_ast, expected_ast)
-
-
-def test_last_bad():
-    with pytest.raises(SyntaxError):
-        insert_linq_nodes(ast.parse('the_source.Last(None)'))
