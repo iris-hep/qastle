@@ -69,6 +69,7 @@ All defined s-expressions are listed here, though this specification will be exp
   - SelectMany: `(SelectMany <source> <selector>)`
     - `selector` must be a `lambda` with one argument
   - First: `(First <source>)`
+  - Last: `(Last <source>)`
   - Aggregate: `(Aggregate <source> <seed> <func>)`
     - `func` must be a `lambda` with two arguments
   - Count: `(Count <source>)`
