@@ -337,6 +337,31 @@ def test_orderby_bad():
         insert_linq_nodes(ast.parse('the_source.OrderBy(None)'))
 
 
+def test_orderbydescending():
+    initial_ast = ast.parse("the_source.OrderByDescending('lambda row: row')")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(
+        OrderByDescending(source=unwrap_ast(ast.parse('the_source')),
+                          key_selector=unwrap_ast(ast.parse('lambda row: row'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_orderbydescending_composite():
+    initial_ast = ast.parse("the_source.First().OrderByDescending('lambda row: row')")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(
+        OrderByDescending(source=First(source=unwrap_ast(ast.parse('the_source'))),
+                          key_selector=unwrap_ast(ast.parse('lambda row: row'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_orderbydescending_bad():
+    with pytest.raises(SyntaxError):
+        insert_linq_nodes(ast.parse('the_source.OrderByDescending()'))
+    with pytest.raises(SyntaxError):
+        insert_linq_nodes(ast.parse('the_source.OrderByDescending(None)'))
+
+
 def test_choose():
     initial_ast = ast.parse("the_source.Choose(2)")
     final_ast = insert_linq_nodes(initial_ast)

@@ -81,6 +81,8 @@ All defined s-expressions are listed here, though this specification will be exp
   - Zip: `(Zip <source>)`
   - OrderBy: `(OrderBy <source> <key_selector>)`
     - `key_selector` must be a `lambda` with one argument
+  - OrderByDescending: `(OrderByDescending <source> <key_selector>)`
+    - `key_selector` must be a `lambda` with one argument
   - Choose: `(Choose <source> <n>)`
     - `n` must be an integer
 
