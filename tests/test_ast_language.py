@@ -239,6 +239,14 @@ def test_OrderBy():
                                               '(OrderBy data_source (lambda (list e) e))')
 
 
+def test_OrderByDescending():
+    orderbydescending_node = OrderByDescending(source=unwrap_ast(ast.parse('data_source')),
+                                               key_selector=unwrap_ast(ast.parse('lambda e: e')))
+    assert_equivalent_python_ast_and_text_ast(
+        wrap_ast(orderbydescending_node),
+        '(OrderByDescending data_source (lambda (list e) e))')
+
+
 def test_Choose():
     choose_node = Choose(source=unwrap_ast(ast.parse('data_source')),
                          n=unwrap_ast(ast.parse('2')))

@@ -1,5 +1,5 @@
 from .linq_util import (Where, Select, SelectMany, First, Last, ElementAt, Aggregate, Count, Max,
-                        Min, Sum, Zip, OrderBy, Choose)
+                        Min, Sum, Zip, OrderBy, OrderByDescending, Choose)
 from .ast_util import wrap_ast, unwrap_ast
 
 import lark
@@ -214,6 +214,11 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
 
     def visit_OrderBy(self, node):
         return self.make_composite_node_string('OrderBy',
+                                               self.visit(node.source),
+                                               self.visit(node.key_selector))
+
+    def visit_OrderByDescending(self, node):
+        return self.make_composite_node_string('OrderByDescending',
                                                self.visit(node.source),
                                                self.visit(node.key_selector))
 
@@ -477,6 +482,18 @@ class TextASTToPythonASTTransformer(lark.Transformer):
                 raise SyntaxError('OrderBy key selector must have exactly one argument; found '
                                   + str(len(fields[1].args.args)))
             return OrderBy(source=fields[0], key_selector=fields[1])
+
+        elif node_type == 'OrderByDescending':
+            if len(fields) != 2:
+                raise SyntaxError('OrderByDescending node must have two fields; found '
+                                  + str(len(fields)))
+            if not isinstance(fields[1], ast.Lambda):
+                raise SyntaxError('OrderByDescending key selector must be a lambda; found '
+                                  + str(type(fields[1])))
+            if len(fields[1].args.args) != 1:
+                raise SyntaxError('OrderByDescending key selector must have exactly one argument;'
+                                  + ' found ' + str(len(fields[1].args.args)))
+            return OrderByDescending(source=fields[0], key_selector=fields[1])
 
         elif node_type == 'Choose':
             if len(fields) != 2:

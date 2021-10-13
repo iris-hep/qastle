@@ -55,6 +55,10 @@ class OrderBy(ast.AST):
     _fields = ['source', 'key_selector']
 
 
+class OrderByDescending(ast.AST):
+    _fields = ['source', 'key_selector']
+
+
 class Choose(ast.AST):
     _fields = ['source', 'n']
 
@@ -72,6 +76,7 @@ linq_operator_names = ('Where',
                        'Sum',
                        'Zip',
                        'OrderBy',
+                       'OrderByDescending',
                        'Choose')
 
 
@@ -173,6 +178,15 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
                 raise SyntaxError('OrderBy() call argument must be a lambda')
             return OrderBy(source=self.visit(source),
                            key_selector=self.visit(args[0]))
+        elif function_name == 'OrderByDescending':
+            if len(args) != 1:
+                raise SyntaxError('OrderByDescending() call must have exactly one argument')
+            if isinstance(args[0], ast.Str):
+                args[0] = unwrap_ast(ast.parse(args[0].s))
+            if not isinstance(args[0], ast.Lambda):
+                raise SyntaxError('OrderByDescending() call argument must be a lambda')
+            return OrderByDescending(source=self.visit(source),
+                                     key_selector=self.visit(args[0]))
         elif function_name == 'Choose':
             if len(args) != 1:
                 raise SyntaxError('Choose() call must have exactly one argument')
