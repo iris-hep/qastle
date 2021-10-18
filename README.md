@@ -72,6 +72,7 @@ All defined s-expressions are listed here, though this specification will be exp
   - Last: `(Last <source>)`
   - ElementAt: `(ElementAt <source> <index>)`
     - `index` must be an integer
+  - Contains: `(Contains <source> <value>)`
   - Aggregate: `(Aggregate <source> <seed> <func>)`
     - `func` must be a `lambda` with two arguments
   - Count: `(Count <source>)`
