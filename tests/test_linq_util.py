@@ -341,6 +341,27 @@ def test_any_bad():
         insert_linq_nodes(ast.parse('the_source.Any(None)'))
 
 
+def test_concat():
+    initial_ast = ast.parse("sequence1.Concat(sequence2)")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(Concat(first=unwrap_ast(ast.parse('sequence1')),
+                                   second=unwrap_ast(ast.parse('sequence2'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_concat_composite():
+    initial_ast = ast.parse("the_source.First().Concat(sequence)")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(Concat(first=First(source=unwrap_ast(ast.parse('the_source'))),
+                                   second=unwrap_ast(ast.parse('sequence'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_concat_bad():
+    with pytest.raises(SyntaxError):
+        insert_linq_nodes(ast.parse('the_source.Concat()'))
+
+
 def test_zip():
     initial_ast = ast.parse("the_source.Zip()")
     final_ast = insert_linq_nodes(initial_ast)

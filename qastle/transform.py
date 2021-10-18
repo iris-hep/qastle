@@ -1,5 +1,5 @@
 from .linq_util import (Where, Select, SelectMany, First, Last, ElementAt, Aggregate, Count, Max,
-                        Min, Sum, All, Any, Zip, OrderBy, OrderByDescending, Choose)
+                        Min, Sum, All, Any, Concat, Zip, OrderBy, OrderByDescending, Choose)
 from .ast_util import wrap_ast, unwrap_ast
 
 import lark
@@ -218,6 +218,11 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
         return self.make_composite_node_string('Any',
                                                self.visit(node.source),
                                                self.visit(node.predicate))
+
+    def visit_Concat(self, node):
+        return self.make_composite_node_string('Concat',
+                                               self.visit(node.first),
+                                               self.visit(node.second))
 
     def visit_Zip(self, node):
         return self.make_composite_node_string('Zip', self.visit(node.source))
@@ -498,6 +503,11 @@ class TextASTToPythonASTTransformer(lark.Transformer):
                 raise SyntaxError('Any predicate must have exactly one argument; found '
                                   + str(len(fields[1].args.args)))
             return Any(source=fields[0], predicate=fields[1])
+
+        elif node_type == 'Concat':
+            if len(fields) != 2:
+                raise SyntaxError('Concat node must have two fields; found ' + str(len(fields)))
+            return Concat(first=fields[0], second=fields[1])
 
         elif node_type == 'Zip':
             if len(fields) != 1:
