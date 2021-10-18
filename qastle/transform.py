@@ -1,5 +1,6 @@
-from .linq_util import (Where, Select, SelectMany, First, Last, ElementAt, Aggregate, Count, Max,
-                        Min, Sum, All, Any, Concat, Zip, OrderBy, OrderByDescending, Choose)
+from .linq_util import (Where, Select, SelectMany, First, Last, ElementAt, Contains, Aggregate,
+                        Count, Max, Min, Sum, All, Any, Concat, Zip, OrderBy, OrderByDescending,
+                        Choose)
 from .ast_util import wrap_ast, unwrap_ast
 
 import lark
@@ -190,6 +191,11 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
         return self.make_composite_node_string('ElementAt',
                                                self.visit(node.source),
                                                self.visit(node.index))
+
+    def visit_Contains(self, node):
+        return self.make_composite_node_string('Contains',
+                                               self.visit(node.source),
+                                               self.visit(node.value))
 
     def visit_Aggregate(self, node):
         return self.make_composite_node_string('Aggregate',
@@ -450,6 +456,11 @@ class TextASTToPythonASTTransformer(lark.Transformer):
             if len(fields) != 2:
                 raise SyntaxError('ElementAt node must have two fields; found ' + str(len(fields)))
             return ElementAt(source=fields[0], index=fields[1])
+
+        elif node_type == 'Contains':
+            if len(fields) != 2:
+                raise SyntaxError('Contains node must have two fields; found ' + str(len(fields)))
+            return Contains(source=fields[0], value=fields[1])
 
         elif node_type == 'Aggregate':
             if len(fields) != 3:

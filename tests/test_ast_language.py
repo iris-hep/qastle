@@ -193,6 +193,13 @@ def test_ElementAt():
                                               '(ElementAt data_source 2)')
 
 
+def test_Contains():
+    first_node = Contains(source=unwrap_ast(ast.parse('data_source')),
+                          value=unwrap_ast(ast.parse('element')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(first_node),
+                                              '(Contains data_source element)')
+
+
 def test_Aggregate():
     aggregate_node = Aggregate(source=unwrap_ast(ast.parse('data_source')),
                                seed=unwrap_ast(ast.parse('0')),
