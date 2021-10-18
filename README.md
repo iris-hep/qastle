@@ -78,6 +78,10 @@ All defined s-expressions are listed here, though this specification will be exp
   - Max: `(Max <source>)`
   - Min: `(Min <source>)`
   - Sum: `(Sum <source>)`
+  - All: `(All <source> <predicate>)`
+    - `predicate` must be a `lambda` with one argument
+  - Any: `(Any <source> <predicate>)`
+    - `predicate` must be a `lambda` with one argument
   - Zip: `(Zip <source>)`
   - OrderBy: `(OrderBy <source> <key_selector>)`
     - `key_selector` must be a `lambda` with one argument

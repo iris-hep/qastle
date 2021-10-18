@@ -1,5 +1,5 @@
 from .linq_util import (Where, Select, SelectMany, First, Last, ElementAt, Aggregate, Count, Max,
-                        Min, Sum, Zip, OrderBy, OrderByDescending, Choose)
+                        Min, Sum, All, Any, Zip, OrderBy, OrderByDescending, Choose)
 from .ast_util import wrap_ast, unwrap_ast
 
 import lark
@@ -208,6 +208,16 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
 
     def visit_Sum(self, node):
         return self.make_composite_node_string('Sum', self.visit(node.source))
+
+    def visit_All(self, node):
+        return self.make_composite_node_string('All',
+                                               self.visit(node.source),
+                                               self.visit(node.predicate))
+
+    def visit_Any(self, node):
+        return self.make_composite_node_string('Any',
+                                               self.visit(node.source),
+                                               self.visit(node.predicate))
 
     def visit_Zip(self, node):
         return self.make_composite_node_string('Zip', self.visit(node.source))
@@ -466,6 +476,28 @@ class TextASTToPythonASTTransformer(lark.Transformer):
             if len(fields) != 1:
                 raise SyntaxError('Sum node must have one field; found ' + str(len(fields)))
             return Sum(source=fields[0])
+
+        elif node_type == 'All':
+            if len(fields) != 2:
+                raise SyntaxError('All node must have two fields; found ' + str(len(fields)))
+            if not isinstance(fields[1], ast.Lambda):
+                raise SyntaxError('All predicate must be a lambda; found '
+                                  + str(type(fields[1])))
+            if len(fields[1].args.args) != 1:
+                raise SyntaxError('All predicate must have exactly one argument; found '
+                                  + str(len(fields[1].args.args)))
+            return All(source=fields[0], predicate=fields[1])
+
+        elif node_type == 'Any':
+            if len(fields) != 2:
+                raise SyntaxError('Any node must have two fields; found ' + str(len(fields)))
+            if not isinstance(fields[1], ast.Lambda):
+                raise SyntaxError('Any predicate must be a lambda; found '
+                                  + str(type(fields[1])))
+            if len(fields[1].args.args) != 1:
+                raise SyntaxError('Any predicate must have exactly one argument; found '
+                                  + str(len(fields[1].args.args)))
+            return Any(source=fields[0], predicate=fields[1])
 
         elif node_type == 'Zip':
             if len(fields) != 1:
