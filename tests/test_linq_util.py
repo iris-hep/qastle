@@ -190,6 +190,27 @@ def test_elementat_bad():
         insert_linq_nodes(ast.parse('the_source.ElementAt()'))
 
 
+def test_contains():
+    initial_ast = ast.parse("the_source.Contains(element)")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(Contains(source=unwrap_ast(ast.parse('the_source')),
+                                     value=unwrap_ast(ast.parse('element'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_contains_composite():
+    initial_ast = ast.parse("the_source.First().Contains(element)")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(Contains(source=First(source=unwrap_ast(ast.parse('the_source'))),
+                                     value=unwrap_ast(ast.parse('element'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_contains_bad():
+    with pytest.raises(SyntaxError):
+        insert_linq_nodes(ast.parse('the_source.Contains()'))
+
+
 def test_aggregate():
     initial_ast = ast.parse("the_source.Aggregate(0, 'lambda total, next: total + next')")
     final_ast = insert_linq_nodes(initial_ast)
