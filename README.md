@@ -63,7 +63,7 @@ All defined s-expressions are listed here, though this specification will be exp
   - Lambdas: `(lambda <arguments> <expression>)`
     - `arguments` must be a `list` containing only variable names
   - Where: `(Where <source> <predicate>)`
-    - `selector` must be a `lambda` with one argument
+    - `predicate` must be a `lambda` with one argument
   - Select: `(Select <source> <selector>)`
     - `selector` must be a `lambda` with one argument
   - SelectMany: `(SelectMany <source> <selector>)`
