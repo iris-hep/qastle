@@ -240,6 +240,13 @@ def test_Any():
                                               '(Any data_source (lambda (list e) e))')
 
 
+def test_Concat():
+    first_node = Concat(first=unwrap_ast(ast.parse('sequence1')),
+                        second=unwrap_ast(ast.parse('sequence2')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(first_node),
+                                              '(Concat sequence1 sequence2)')
+
+
 def test_Zip():
     first_node = Zip(source=unwrap_ast(ast.parse('data_source')))
     assert_equivalent_python_ast_and_text_ast(wrap_ast(first_node),

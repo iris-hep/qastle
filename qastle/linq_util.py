@@ -55,6 +55,10 @@ class Any(ast.AST):
     _fields = ['source', 'predicate']
 
 
+class Concat(ast.AST):
+    _fields = ['first', 'second']
+
+
 class Zip(ast.AST):
     _fields = ['source']
 
@@ -84,6 +88,7 @@ linq_operator_names = ('Where',
                        'Sum',
                        'All',
                        'Any',
+                       'Concat',
                        'Zip',
                        'OrderBy',
                        'OrderByDescending',
@@ -193,6 +198,10 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
                 raise SyntaxError('Any() call argument must be a lambda')
             return Any(source=self.visit(source),
                        predicate=self.visit(args[0]))
+        elif function_name == 'Concat':
+            if len(args) != 1:
+                raise SyntaxError('Concat() call must have exactly one argument')
+            return Concat(first=self.visit(source), second=self.visit(args[0]))
         elif function_name == 'Zip':
             if len(args) != 0:
                 raise SyntaxError('Zip() call must have zero arguments')
