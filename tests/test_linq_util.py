@@ -295,6 +295,52 @@ def test_sum_bad():
         insert_linq_nodes(ast.parse('the_source.Sum(None)'))
 
 
+def test_all():
+    initial_ast = ast.parse("the_source.All('lambda row: row')")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(All(source=unwrap_ast(ast.parse('the_source')),
+                                predicate=unwrap_ast(ast.parse('lambda row: row'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_all_composite():
+    initial_ast = ast.parse("the_source.First().All('lambda row: row')")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(All(source=First(source=unwrap_ast(ast.parse('the_source'))),
+                                predicate=unwrap_ast(ast.parse('lambda row: row'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_all_bad():
+    with pytest.raises(SyntaxError):
+        insert_linq_nodes(ast.parse('the_source.All()'))
+    with pytest.raises(SyntaxError):
+        insert_linq_nodes(ast.parse('the_source.All(None)'))
+
+
+def test_any():
+    initial_ast = ast.parse("the_source.Any('lambda row: row')")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(Any(source=unwrap_ast(ast.parse('the_source')),
+                                predicate=unwrap_ast(ast.parse('lambda row: row'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_any_composite():
+    initial_ast = ast.parse("the_source.First().Any('lambda row: row')")
+    final_ast = insert_linq_nodes(initial_ast)
+    expected_ast = wrap_ast(Any(source=First(source=unwrap_ast(ast.parse('the_source'))),
+                                predicate=unwrap_ast(ast.parse('lambda row: row'))))
+    assert_ast_nodes_are_equal(final_ast, expected_ast)
+
+
+def test_any_bad():
+    with pytest.raises(SyntaxError):
+        insert_linq_nodes(ast.parse('the_source.Any()'))
+    with pytest.raises(SyntaxError):
+        insert_linq_nodes(ast.parse('the_source.Any(None)'))
+
+
 def test_zip():
     initial_ast = ast.parse("the_source.Zip()")
     final_ast = insert_linq_nodes(initial_ast)

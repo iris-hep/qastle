@@ -226,6 +226,20 @@ def test_Sum():
                                               '(Sum data_source)')
 
 
+def test_All():
+    select_node = All(source=unwrap_ast(ast.parse('data_source')),
+                      predicate=unwrap_ast(ast.parse('lambda e: e')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(select_node),
+                                              '(All data_source (lambda (list e) e))')
+
+
+def test_Any():
+    select_node = Any(source=unwrap_ast(ast.parse('data_source')),
+                      predicate=unwrap_ast(ast.parse('lambda e: e')))
+    assert_equivalent_python_ast_and_text_ast(wrap_ast(select_node),
+                                              '(Any data_source (lambda (list e) e))')
+
+
 def test_Zip():
     first_node = Zip(source=unwrap_ast(ast.parse('data_source')))
     assert_equivalent_python_ast_and_text_ast(wrap_ast(first_node),

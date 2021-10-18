@@ -47,6 +47,14 @@ class Sum(ast.AST):
     _fields = ['source']
 
 
+class All(ast.AST):
+    _fields = ['source', 'predicate']
+
+
+class Any(ast.AST):
+    _fields = ['source', 'predicate']
+
+
 class Zip(ast.AST):
     _fields = ['source']
 
@@ -74,6 +82,8 @@ linq_operator_names = ('Where',
                        'Max',
                        'Min',
                        'Sum',
+                       'All',
+                       'Any',
                        'Zip',
                        'OrderBy',
                        'OrderByDescending',
@@ -165,6 +175,24 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
             if len(args) != 0:
                 raise SyntaxError('Sum() call must have zero arguments')
             return Sum(source=self.visit(source))
+        elif function_name == 'All':
+            if len(args) != 1:
+                raise SyntaxError('All() call must have exactly one argument')
+            if isinstance(args[0], ast.Str):
+                args[0] = unwrap_ast(ast.parse(args[0].s))
+            if not isinstance(args[0], ast.Lambda):
+                raise SyntaxError('All() call argument must be a lambda')
+            return All(source=self.visit(source),
+                       predicate=self.visit(args[0]))
+        elif function_name == 'Any':
+            if len(args) != 1:
+                raise SyntaxError('Any() call must have exactly one argument')
+            if isinstance(args[0], ast.Str):
+                args[0] = unwrap_ast(ast.parse(args[0].s))
+            if not isinstance(args[0], ast.Lambda):
+                raise SyntaxError('Any() call argument must be a lambda')
+            return Any(source=self.visit(source),
+                       predicate=self.visit(args[0]))
         elif function_name == 'Zip':
             if len(args) != 0:
                 raise SyntaxError('Zip() call must have zero arguments')
