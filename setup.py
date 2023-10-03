@@ -11,7 +11,7 @@ setuptools.setup(name='qastle',
                  packages=setuptools.find_packages(exclude=['tests']),
                  python_requires=('>=2.7, '
                                   '!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, <3.12'),
-                 install_requires=['lark-parser>=0.6.5'],
+                 install_requires=['lark'],
                  extras_require={'test': ['flake8', 'pytest', 'pytest-cov']},
                  package_data={'qastle': ['syntax.lark']},
                  author='Mason Proffitt',
