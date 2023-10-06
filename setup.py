@@ -10,7 +10,7 @@ setuptools.setup(name='qastle',
                  long_description_content_type="text/markdown",
                  packages=setuptools.find_packages(exclude=['tests']),
                  python_requires=('>=2.7, '
-                                  '!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, <3.12'),
+                                  '!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, <3.13'),
                  install_requires=['lark'],
                  extras_require={'test': ['flake8', 'pytest', 'pytest-cov']},
                  package_data={'qastle': ['syntax.lark']},
