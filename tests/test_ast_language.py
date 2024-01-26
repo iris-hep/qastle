@@ -1,6 +1,8 @@
 from .testing_util import *
 
 from qastle import *
+from qastle.linq_util import *
+from qastle.translate import *
 
 import ast
 

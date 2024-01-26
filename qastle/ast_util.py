@@ -3,6 +3,19 @@ import sys
 
 
 def unwrap_ast(module_node):
+    """
+    Extract a Python AST from an ast.Module node
+
+    Parameters
+    ----------
+    python_ast : ast.AST
+        Python AST wrapped in an ast.Module
+
+    Returns
+    -------
+    ast.AST
+        Bare Python AST without an ast.Module
+    """
     if len(module_node.body) == 0:
         return None
     else:
@@ -11,6 +24,19 @@ def unwrap_ast(module_node):
 
 
 def wrap_ast(node=None):
+    """
+    Insert a Python AST into an ast.Module node
+
+    Parameters
+    ----------
+    python_ast : ast.AST
+        Python AST to be wrapped
+
+    Returns
+    -------
+    ast.AST
+        Python AST wrapped in an ast.Module
+    """
     if node is None:
         body_list = []
     else:

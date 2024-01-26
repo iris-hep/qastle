@@ -242,6 +242,19 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
 
 
 def insert_linq_nodes(python_ast):
+    """
+    Insert LINQ nodes into a Python AST
+
+    Parameters
+    ----------
+    python_ast : ast.AST
+        Python AST without LINQ nodes
+
+    Returns
+    -------
+    ast.AST
+        Python AST with LINQ nodes inserted
+    """
     return InsertLINQNodesTransformer().visit(python_ast)
 
 
@@ -250,4 +263,17 @@ class RemoveLINQNodesTransformer(ast.NodeTransformer):
 
 
 def remove_linq_nodes(python_ast):
+    """
+    Remove LINQ nodes from a Python AST
+
+    Parameters
+    ----------
+    python_ast : ast.AST
+        Python AST with LINQ nodes
+
+    Returns
+    -------
+    ast.AST
+        Python AST without LINQ nodes
+    """
     return RemoveLINQNodesTransformer().visit(python_ast)
