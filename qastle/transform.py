@@ -104,7 +104,8 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
 
     def visit_UnaryOp(self, node):
         if (hasattr(ast, 'Constant') and isinstance(node.operand, ast.Constant)
-           or (isinstance(node.operand, ast.Constant) and isinstance(node.operand.value, (int, float, complex)))):
+           or (isinstance(node.operand, ast.Constant)
+               and isinstance(node.operand.value, (int, float, complex)))):
             if isinstance(node.op, ast.UAdd):
                 return self.visit(node.operand)
             elif isinstance(node.op, ast.USub):
