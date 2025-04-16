@@ -122,8 +122,8 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
         if function_name == 'Where':
             if len(args) != 1:
                 raise SyntaxError('Where() call must have exactly one argument')
-            if isinstance(args[0], ast.Str):
-                args[0] = unwrap_ast(ast.parse(args[0].s))
+            if isinstance(args[0], ast.Constant) and isinstance(args[0].value, str):
+                args[0] = unwrap_ast(ast.parse(args[0].value))
             if not isinstance(args[0], ast.Lambda):
                 raise SyntaxError('Where() call argument must be a lambda')
             return Where(source=self.visit(source),
@@ -131,8 +131,8 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
         elif function_name == 'Select':
             if len(args) != 1:
                 raise SyntaxError('Select() call must have exactly one argument')
-            if isinstance(args[0], ast.Str):
-                args[0] = unwrap_ast(ast.parse(args[0].s))
+            if isinstance(args[0], ast.Constant) and isinstance(args[0].value, str):
+                args[0] = unwrap_ast(ast.parse(args[0].value))
             if not isinstance(args[0], ast.Lambda):
                 raise SyntaxError('Select() call argument must be a lambda')
             return Select(source=self.visit(source),
@@ -140,8 +140,8 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
         elif function_name == 'SelectMany':
             if len(args) != 1:
                 raise SyntaxError('SelectMany() call must have exactly one argument')
-            if isinstance(args[0], ast.Str):
-                args[0] = unwrap_ast(ast.parse(args[0].s))
+            if isinstance(args[0], ast.Constant) and isinstance(args[0].value, str):
+                args[0] = unwrap_ast(ast.parse(args[0].value))
             if not isinstance(args[0], ast.Lambda):
                 raise SyntaxError('SelectMany() call argument must be a lambda')
             return SelectMany(source=self.visit(source),
@@ -166,8 +166,8 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
             if len(args) != 2:
                 raise SyntaxError('Aggregate() call must have exactly two arguments; found'
                                   + str(len(args)))
-            if isinstance(args[1], ast.Str):
-                args[1] = unwrap_ast(ast.parse(args[1].s))
+            if isinstance(args[1], ast.Constant) and isinstance(args[1].value, str):
+                args[1] = unwrap_ast(ast.parse(args[1].value))
             if not isinstance(args[1], ast.Lambda):
                 raise SyntaxError('Second Aggregate() call argument must be a lambda')
             return Aggregate(source=self.visit(source),
@@ -192,8 +192,8 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
         elif function_name == 'All':
             if len(args) != 1:
                 raise SyntaxError('All() call must have exactly one argument')
-            if isinstance(args[0], ast.Str):
-                args[0] = unwrap_ast(ast.parse(args[0].s))
+            if isinstance(args[0], ast.Constant) and isinstance(args[0].value, str):
+                args[0] = unwrap_ast(ast.parse(args[0].value))
             if not isinstance(args[0], ast.Lambda):
                 raise SyntaxError('All() call argument must be a lambda')
             return All(source=self.visit(source),
@@ -201,8 +201,8 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
         elif function_name == 'Any':
             if len(args) != 1:
                 raise SyntaxError('Any() call must have exactly one argument')
-            if isinstance(args[0], ast.Str):
-                args[0] = unwrap_ast(ast.parse(args[0].s))
+            if isinstance(args[0], ast.Constant) and isinstance(args[0].value, str):
+                args[0] = unwrap_ast(ast.parse(args[0].value))
             if not isinstance(args[0], ast.Lambda):
                 raise SyntaxError('Any() call argument must be a lambda')
             return Any(source=self.visit(source),
@@ -218,8 +218,8 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
         elif function_name == 'OrderBy':
             if len(args) != 1:
                 raise SyntaxError('OrderBy() call must have exactly one argument')
-            if isinstance(args[0], ast.Str):
-                args[0] = unwrap_ast(ast.parse(args[0].s))
+            if isinstance(args[0], ast.Constant) and isinstance(args[0].value, str):
+                args[0] = unwrap_ast(ast.parse(args[0].value))
             if not isinstance(args[0], ast.Lambda):
                 raise SyntaxError('OrderBy() call argument must be a lambda')
             return OrderBy(source=self.visit(source),
@@ -227,8 +227,8 @@ class InsertLINQNodesTransformer(ast.NodeTransformer):
         elif function_name == 'OrderByDescending':
             if len(args) != 1:
                 raise SyntaxError('OrderByDescending() call must have exactly one argument')
-            if isinstance(args[0], ast.Str):
-                args[0] = unwrap_ast(ast.parse(args[0].s))
+            if isinstance(args[0], ast.Constant) and isinstance(args[0].value, str):
+                args[0] = unwrap_ast(ast.parse(args[0].value))
             if not isinstance(args[0], ast.Lambda):
                 raise SyntaxError('OrderByDescending() call argument must be a lambda')
             return OrderByDescending(source=self.visit(source),
