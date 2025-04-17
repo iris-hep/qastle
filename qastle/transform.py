@@ -64,15 +64,6 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
     def visit_Constant(self, node):
         return repr(node.value)
 
-    def visit_Num(self, node):
-        return repr(node.n)
-
-    def visit_Str(self, node):
-        return repr(node.s)
-
-    def visit_NameConstant(self, node):
-        return repr(node.value)
-
     @staticmethod
     def make_composite_node_string(node_type, *fields):
         return '(' + node_type + ''.join([' ' + field for field in fields]) + ')'
@@ -113,11 +104,12 @@ class PythonASTToTextASTTransformer(ast.NodeVisitor):
 
     def visit_UnaryOp(self, node):
         if (hasattr(ast, 'Constant') and isinstance(node.operand, ast.Constant)
-           or isinstance(node.operand, ast.Num)):
+           or (isinstance(node.operand, ast.Constant)
+               and isinstance(node.operand.value, (int, float, complex)))):
             if isinstance(node.op, ast.UAdd):
                 return self.visit(node.operand)
             elif isinstance(node.op, ast.USub):
-                return self.visit(ast.Num(n=-node.operand.n))
+                return self.visit(ast.Constant(value=-node.operand.value))
         return self.make_composite_node_string(op_strings[type(node.op)],
                                                self.visit(node.operand))
 
@@ -302,9 +294,9 @@ class TextASTToPythonASTTransformer(lark.Transformer):
         elif node_type == 'attr':
             if len(fields) != 2:
                 raise SyntaxError('Attribute node must have two fields; found ' + str(len(fields)))
-            if not isinstance(fields[1], ast.Str):
+            if not (isinstance(fields[1], ast.Constant) and isinstance(fields[1].value, str)):
                 raise SyntaxError('Attribute name must be a string; found ' + str(type(fields[1])))
-            return ast.Attribute(value=fields[0], attr=fields[1].s, ctx=ast.Load())
+            return ast.Attribute(value=fields[0], attr=fields[1].value, ctx=ast.Load())
 
         elif node_type == 'subscript':
             if len(fields) != 2:
