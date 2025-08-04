@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="qastle",
-    version="0.18.1",
+    version="0.19.0",
     description="Query AST Language Expressions",
     long_description=long_description,
     long_description_content_type="text/markdown",
