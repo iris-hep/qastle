@@ -2,12 +2,13 @@ name: Python package
 on: [push, pull_request]
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os == 'ubuntu-latest' && (matrix.python-version == '3.8' || matrix.python-version == '3.9') && 'ubuntu-24.04' || matrix.os == 'macos-latest' && (matrix.python-version == '3.8' || matrix.python-version == '3.9') && 'macos-15-intel' || matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version:
-          ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14.0-rc.1"]
+          ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
@@ -16,13 +17,15 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          pip install -e .[test]
+          python -m pip install .[test]
+          python -m pip check
+          python -I -c "import importlib.metadata as m, qastle, sys; print(sys.version); print(qastle.__file__); print([(n, m.version(n)) for n in ['qastle', 'lark', 'pytest']])"
       - name: Lint with flake8
         run: |
           flake8
           flake8 --select=C90 --exit-zero --max-complexity=10
       - name: Test with pytest
         run: |
-          pytest --cov=./ --cov-report=xml
+          python -c "import os, pathlib, shutil, subprocess, sys; target = pathlib.Path(os.environ['RUNNER_TEMP']) / 'installed-qastle-tests'; shutil.copytree('tests', target / 'tests'); sys.exit(subprocess.call([sys.executable, '-m', 'pytest', '-ra', '--rootdir=.', '--cov=qastle', '--cov-report=xml:' + str(pathlib.Path.cwd() / 'coverage.xml')], cwd=target))"
       - name: Codecov
         uses: codecov/codecov-action@v5
