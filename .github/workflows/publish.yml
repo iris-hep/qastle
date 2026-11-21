@@ -1,0 +1,92 @@
+name: Publish Qastle to PyPI
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Published release tag (for example, v0.20.0)
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: pypi-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: >-
+      github.repository == 'iris-hep/qastle' &&
+      ((github.event_name == 'release') ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
+    steps:
+      - name: Validate release tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+((a|b|rc)[0-9]+)?$ ]]; then
+            echo 'Expected vX.Y.Z or a prerelease tag such as vX.Y.Zb1.' >&2
+            exit 1
+          fi
+          expected_prerelease=false
+          if [[ -n "${BASH_REMATCH[1]}" ]]; then
+            expected_prerelease=true
+          fi
+          prerelease="$RELEASE_PRERELEASE"
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]]; then
+            prerelease=$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+              --json isDraft,isPrerelease \
+              --jq 'select(.isDraft == false) | .isPrerelease | tostring')
+          fi
+          if [[ "$prerelease" != "$expected_prerelease" ]]; then
+            echo 'Select a published release and match the prerelease setting to its tag.' >&2
+            exit 1
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'release' && github.sha || format('refs/tags/{0}', inputs.tag) }}
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.14'
+      - name: Build and check distributions
+        run: |
+          python -m pip install build twine
+          python -m build
+          version=${RELEASE_TAG#v}
+          if [[ ! -f "dist/qastle-${version}.tar.gz" ]] ||
+            ! compgen -G "dist/qastle-${version}-*.whl" >/dev/null; then
+            echo "The distributions do not match release tag $RELEASE_TAG. Check setup.py." >&2
+            exit 1
+          fi
+          python -m twine check dist/*
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: distributions
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    name: Publish distributions to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/qastle/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: distributions
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
