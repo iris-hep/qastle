@@ -10,7 +10,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(exclude=["tests"]),
-    python_requires=(">=3.8, <3.16"),
+    python_requires=(">=3.10, <3.16"),
     install_requires=["lark"],
     extras_require={"test": ["flake8", "pytest", "pytest-cov"]},
     package_data={"qastle": ["syntax.lark"]},

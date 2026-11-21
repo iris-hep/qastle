@@ -102,6 +102,23 @@ def test_call():
     assert_equivalent_python_text_and_text_ast('a(0, 1, 2)', '(call a 0 1 2)')
 
 
+def test_func_adl_where_select_query():
+    assert_equivalent_python_text_and_text_ast(
+        "Select(Where(EventDataset(['input.root'], 'events'), "
+        "lambda event: event['pt'] > 20), lambda event: event['pt'])",
+        "(call Select (call Where (call EventDataset (list 'input.root') 'events') "
+        "(lambda (list event) (> (subscript event 'pt') 20))) "
+        "(lambda (list event) (subscript event 'pt')))",
+    )
+
+
+def test_func_adl_skip_take_query():
+    assert_equivalent_python_text_and_text_ast(
+        "Take(Skip(EventDataset(['input.root'], 'events'), 2), 3)",
+        "(call Take (call Skip (call EventDataset (list 'input.root') 'events') 2) 3)",
+    )
+
+
 def test_if():
     assert_equivalent_python_text_and_text_ast('a if b else c', '(if b a c)')
 
