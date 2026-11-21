@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Published stable release tag (for example, v0.20.0)
+        description: Published release tag (for example, v0.20.0)
         required: true
         type: string
 
@@ -20,30 +20,36 @@ jobs:
   build:
     if: >-
       github.repository == 'iris-hep/qastle' &&
-      ((github.event_name == 'release' && !github.event.release.prerelease) ||
+      ((github.event_name == 'release') ||
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master'))
     runs-on: ubuntu-latest
     permissions:
       contents: read
     env:
       RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
     steps:
       - name: Validate release tag
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo 'Expected a stable release tag in the form vX.Y.Z.' >&2
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+((a|b|rc)[0-9]+)?$ ]]; then
+            echo 'Expected vX.Y.Z or a prerelease tag such as vX.Y.Zb1.' >&2
             exit 1
           fi
+          expected_prerelease=false
+          if [[ -n "${BASH_REMATCH[1]}" ]]; then
+            expected_prerelease=true
+          fi
+          prerelease="$RELEASE_PRERELEASE"
           if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]]; then
-            published_tag=$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
-              --json tagName,isDraft,isPrerelease \
-              --jq 'select(.isDraft == false and .isPrerelease == false) | .tagName')
-            if [[ "$published_tag" != "$RELEASE_TAG" ]]; then
-              echo 'Select an existing, published stable GitHub release.' >&2
-              exit 1
-            fi
+            prerelease=$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+              --json isDraft,isPrerelease \
+              --jq 'select(.isDraft == false) | .isPrerelease | tostring')
+          fi
+          if [[ "$prerelease" != "$expected_prerelease" ]]; then
+            echo 'Select a published release and match the prerelease setting to its tag.' >&2
+            exit 1
           fi
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
